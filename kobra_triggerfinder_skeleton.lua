@@ -1,6 +1,4 @@
--- Kobra Trigger Finder Integration Module
--- This module plugs into Kobra’s nested Server → Triggers → Trigger Finder menu.
-
+TriggerFinder = TriggerFinder or {}
 local TriggerFinder = {
     foundTriggers   = {},
     selectedTrigger = nil,
