@@ -1983,4 +1983,10 @@ function TriggerFinder:BuildMenu(state)
     return items
 end
 
+-- REQUIRED KOBRA BRIDGE (FIX)
+TriggerFinder.Menu = function(state)
+    return TriggerFinder:BuildMenu(state)
+end
+
 return TriggerFinder
+
