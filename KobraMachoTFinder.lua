@@ -1,4 +1,4 @@
-MachoLockLogger(1)
+--MachoLockLogger(1)
 
 --[[ local BUNDSIOFDSFUDHBSFUBSDOIFSDHJFUIYSDF = "jkiushdiufhsdbofihUYHFUYJASHIUYGAS872765873u4hj5nkjbytFCUSAKIHJJYDSFHTDHSHOIUHdiuaghdfjyhsbdioufjneqwouerhy287y34gujkdsnikufguyhcflbijksdfhugygdisufhgsyhtgdfvsd"
 local function decodeConst(encoded, key)
