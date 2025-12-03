@@ -1,21 +1,5 @@
 MachoLockLogger(1)
 
- local BUNDSIOFDSFUDHBSFUBSDOIFSDHJFUIYSDF = "jkiushdiufhsdbofihUYHFUYJASHIUYGAS872765873u4hj5nkjbytFCUSAKIHJJYDSFHTDHSHOIUHdiuaghdfjyhsbdioufjneqwouerhy287y34gujkdsnikufguyhcflbijksdfhugygdisufhgsyhtgdfvsd"
-local function decodeConst(encoded, key)
-    local decoded = ""
-    for i = 1, #encoded do
-        local byte = string.byte(encoded, i)
-        decoded = decoded .. string.char((byte - key) % 256)
-    end
-    if DEBUG then
-        local bytes = {}
-        for i = 1, #decoded do
-            bytes[i] = string.byte(decoded, i)
-        end
-        print("[OSINT BYPASS] Decoded bytes: " .. table.concat(bytes, ","))
-    end
-    return decoded
-end
 
 ---@diagnostic disable: undefined-global
 local Kobra = {}
