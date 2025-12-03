@@ -1,6 +1,6 @@
 MachoLockLogger(1)
 
---[[ local BUNDSIOFDSFUDHBSFUBSDOIFSDHJFUIYSDF = "jkiushdiufhsdbofihUYHFUYJASHIUYGAS872765873u4hj5nkjbytFCUSAKIHJJYDSFHTDHSHOIUHdiuaghdfjyhsbdioufjneqwouerhy287y34gujkdsnikufguyhcflbijksdfhugygdisufhgsyhtgdfvsd"
+ local BUNDSIOFDSFUDHBSFUBSDOIFSDHJFUIYSDF = "jkiushdiufhsdbofihUYHFUYJASHIUYGAS872765873u4hj5nkjbytFCUSAKIHJJYDSFHTDHSHOIUHdiuaghdfjyhsbdioufjneqwouerhy287y34gujkdsnikufguyhcflbijksdfhugygdisufhgsyhtgdfvsd"
 local function decodeConst(encoded, key)
     local decoded = ""
     for i = 1, #encoded do
@@ -16,149 +16,6 @@ local function decodeConst(encoded, key)
     end
     return decoded
 end
-
-local AUTH_URL_A = "https://osintsolutions.org/rawtext"
-local AUTH_URL_B = "https://osintsolutions.org/dih"
-local DEBUG = false
-
-local function simpleHash(str)
-    local hash = 0
-    for i = 1, #str do
-        hash = (hash * 31 + string.byte(str, i)) % 2^32
-    end
-    return string.format("%x", hash)
-end
-
-local function trim(s)
-    if not s then return nil end
-    return (s:gsub("^%s*(.-)%s*$", "%1"))
-end
-
-local function fetchResponse(url)
-    if DEBUG then
-        print("[OSINT BYPASS] Attempting to fetch from: " .. url)
-    end
-    local ok, res = pcall(MachoWebRequest, url)
-    if not ok or not res or res == "" then
-        print("[OSINT BYPASS] Authentication failed: Could not fetch keys from " .. url)
-        if DEBUG then
-            print("[OSINT BYPASS] Error details: ok=" .. tostring(ok) .. ", res=" .. tostring(res))
-        end
-        return nil
-    end
-    res = tostring(res)
-    if DEBUG then
-        local preview = string.sub(res, 1, 300)
-        print(string.format("[OSINT BYPASS] Fetched %d bytes from %s — preview: %s", #res, url, preview))
-    end
-
-    local content, signature = res:match("(.-)\nSignature:%s*(%x+)\n$")
-    if not content or not signature then
-        print("[OSINT BYPASS] Authentication failed: Invalid response format from " .. url)
-        if DEBUG then
-            print("[OSINT BYPASS] Raw response: " .. res)
-        end
-        return nil
-    end
-
-    if signature ~= simpleHash(content .. BUNDSIOFDSFUDHBSFUBSDOIFSDHJFUIYSDF) then
-        print("[OSINT BYPASS] Authentication failed: Invalid response signature from " .. url)
-        return nil
-    end
-    return content
-end
-
-local function parseVersionFromResponse(resp)
-    if not resp then return nil end
-    local patterns = {
-        "[Vv]ersion%s*[:=]%s*([^\r\n]+)",
-        "[Vv]ersion%s+([^\r\n]+)",
-    }
-    for _, pat in ipairs(patterns) do
-        local v = resp:match(pat)
-        if v then
-            v = trim(v)
-            v = (v:gsub("[%s%p]+$", ""))
-            return v
-        end
-    end
-    local line = resp:match("([^\r\n]*[Vv]ersion[^\r\n]*)")
-    if line then
-        local v = line:match("[Vv]ersion%s*[:=]?%s*([%w%._%-]+)")
-        if v then return trim(v) end
-    end
-    return nil
-end
-
-local function createProtectedAuth()
-    local currentVersion = "3.245454457843"
-    if DEBUG then
-        local bytes = {}
-        for i = 1, #currentVersion do
-            bytes[i] = string.byte(currentVersion, i)
-        end
-        print("[OSINT BYPASS] currentVersion bytes: " .. table.concat(bytes, ","))
-    end
-    local tamperCheck = simpleHash(currentVersion .. BUNDSIOFDSFUDHBSFUBSDOIFSDHJFUIYSDF)
-
-    return function()
-        if simpleHash(currentVersion .. BUNDSIOFDSFUDHBSFUBSDOIFSDHJFUIYSDF) ~= tamperCheck then
-            print("[OSINT BYPASS] Authentication failed: Version tampering detected")
-            return false
-        end
-
-        local currentKey = MachoAuthenticationKey()
-        if not currentKey or currentKey == "" then
-            print("[OSINT BYPASS] Authentication failed: No key found")
-            return false
-        end
-
-        local respA = fetchResponse(AUTH_URL_A)
-        if not respA then return false end
-        local respB = fetchResponse(AUTH_URL_B)
-        if not respB then return false end
-
-        local verA = parseVersionFromResponse(respA)
-        local verB = parseVersionFromResponse(respB)
-
-        if DEBUG then
-            print("[OSINT BYPASS] Parsed versions — rawtext: " .. tostring(verA) .. ", dih: " .. tostring(verB))
-        end
-
-        if not verA or not verB then
-            print("[OSINT BYPASS] Authentication failed #1")
-            return false
-        end
-
-        if verA ~= verB then
-            print("[OSINT BYPASS] Authentication failed #2")
-            return false
-        end
-
-        if verA ~= currentVersion then
-            print("Authentication failed #4") 
-            return false
-        end
-
-        local foundInA = respA:find(currentKey, 1, true) ~= nil
-        local foundInB = respB:find(currentKey, 1, true) ~= nil
-
-        if foundInA and foundInB then
-            print("[OSINT BYPASS] Authentication successful: Key verified [" .. currentKey .. "] in both sources")
-            return true
-        else
-            print("[OSINT BYPASS] Authentication failed")
-            return false
-        end
-    end
-end
-
-local AuthenticateUser = createProtectedAuth()
-
-if not AuthenticateUser() then
-    print("[OSINT BYPASS] Access denied: Authentication required")
-    return
-end ]]
 
 ---@diagnostic disable: undefined-global
 local Kobra = {}
@@ -390,1026 +247,8 @@ local Injection = InjectionType == "Raw" and MachoInjectResourceRaw or MachoInje
 ---@param text string
 
 
---[[ TriggerFinder module (inlined) ]]--
--- kobra_triggerfinder_skeleton.lua
--- This file is a helper for integrating Trigger Finder into Kobra DUI.
 
--- 1) Copy the full `knownTriggers = { ... }` block from KatanaTriggerFinder0.lua
---    and paste it below where indicated.
--- 2) Copy the full execution `local handled = false ...` if/elseif chain
---    and paste it into the executeTrigger() function where indicated.
--- 3) In newobamabypass_kobra3.lua, require this file and add a tab that calls
---    TriggerFinder:BuildMenu(state).
-
-------------------------------------------------------------
--- KOBRA TRIGGER FINDER (C-STYLE DUI VERSION)
-------------------------------------------------------------
-
-local TriggerFinder = {
-    knownTriggers   = {},   -- full trigger catalog
-    foundTriggers   = {},   -- filtered / scanned list
-    selectedTrigger = nil,  -- currently selected trigger
-    itemInput       = "",   -- last item name input
-    amountInput     = "",   -- last amount input
-}
-
-------------------------------------------------------------
--- 1) DEFINE YOUR TRIGGERS HERE
---    You can mirror what you had in Katana: each trigger
---    gets an id, name, type, and an exec() function that
---    actually does the work.
-------------------------------------------------------------
-
-local knownTriggers = {
-    -- =====================================================================
-    --  SAFE TRIGGERS – Low risk, widely used, stable
-    -- =====================================================================
-    {
-        id   = "ak_item",
-        name = "Any Item Trigger (SAFE)",
-        type = "item",
-        res  = {
-            "ak47_whitewidowv2",
-            "ak47_cannabiscafev2",
-            "ak47_khusland",
-            "ak47_khusbites",
-            "ak47_leafnlatte",
-            "ak47_qb_cannabiscafev2",
-            "ak47_qb_leafnlatte",
-            "ak47_qb_khusland",
-            "ak47_qb_khusbites",
-            "ak47_qb_whitewidowv2"
-        },
-        all = false
-    },
-    {
-        id   = "nails_money",
-        name = "Money Trigger (SAFE)",
-        type = "money",
-        res  = { "codewave-nails-phone" },
-        all  = true
-    },
-    {
-        id   = "handbag_money",
-        name = "Money Trigger (SAFE)",
-        type = "money",
-        res  = { "codewave-handbag-phone" },
-        all  = true
-    },
-    {
-        id   = "sneaker_money",
-        name = "Money Trigger (SAFE)",
-        type = "money",
-        res  = { "codewave-sneaker-phone" },
-        all  = true
-    },
-    {
-        id   = "caps_money",
-        name = "Money Trigger (SAFE)",
-        type = "money",
-        res  = { "codewave-caps-client-phone" },
-        all  = true
-    },
-    {
-        id   = "ak47_inventory",
-        name = "Any Item Trigger (SAFE)",
-        type = "item",
-        res  = { "ak47_inventory", "ak47_qb_inventory" },
-        all  = false
-    },
-    {
-        id   = "shop_purchase",
-        name = "Palm Beach ANY ITEM (SAFE)",
-        type = "item_only",
-        res  = { "PalmBeachMiamiMinimap" },
-        all  = true
-    },
-    {
-        id   = "ak47_drugmanager",
-        name = "Any Item Trigger (SAFE)",
-        type = "item",
-        res  = { "ak47_drugmanager" },
-        all  = false
-    },
-    {
-        id   = "ak47_drugmanagerv2",
-        name = "Any Item Trigger (SAFE)",
-        type = "item",
-        res  = { "ak47_drugmanagerv2" },
-        all  = false
-    },
-    {
-        id   = "ak47_prospecting_reward",
-        name = "Give Scrap Items (SAFE)",
-        type = "money",
-        res  = { "ak47_prospecting" },
-        all  = false
-    },
-    {
-        id   = "ak47_prospecting_sell",
-        name = "Money Trigger (SAFE)",
-        type = "money",
-        res  = { "ak47_prospecting" },
-        all  = false
-    },
-    {
-        id   = "angelicxs_civilian_payment",
-        name = "Money Trigger (SAFE)",
-        type = "money",
-        res  = { "angelicxs-civilianjobs" },
-        all  = false
-    },
-    {
-        id   = "angelicxs_civilian_item",
-        name = "Any Item Trigger (SAFE)",
-        type = "item",
-        res  = { "angelicxs-civilianjobs" },
-        all  = false
-    },
-    {
-        id   = "it_lib",
-        name = "Any Item Trigger (SAFE)",
-        type = "item",
-        res  = { "it-lib" },
-        all  = false
-    },
-
-    -- =====================================================================
-    --  MEDIUM RISK – Common but may be patched or monitored
-    -- =====================================================================
-    {
-        id   = "generic_money",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "ak47_qb_drugmanagerv2", "ak47_drugmanagerv2" },
-        all  = false
-    },
-    {
-        id   = "hotdog_money",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "qb-hotdogjob" },
-        all  = true
-    },
-    {
-        id   = "cl_pizzeria",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "CL-Pizzeria" },
-        all  = false
-    },
-    {
-        id   = "solstice_moonshine",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "SolsticeMoonshineV2" },
-        all  = false
-    },
-    {
-        id   = "tk_smokev2",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "Tk_smokev2" },
-        all  = false
-    },
-    {
-        id   = "ak4y_fishing",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "ak4y-advancedFishing" },
-        all  = false
-    },
-    {
-        id   = "ak4y_case_opening",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "ak4y-caseOpening" },
-        all  = false
-    },
-    {
-        id   = "ak4y_playtime_shop",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "ak4y-playTimeShop" },
-        all  = false
-    },
-    {
-        id   = "apex_cluckinbell",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "apex_cluckinbell" },
-        all  = false
-    },
-    {
-        id   = "apex_rexdiner",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "apex_rexdiner" },
-        all  = false
-    },
-    {
-        id   = "ars_hunting",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "ars_hunting" },
-        all  = false
-    },
-    {
-        id   = "ars_vvsgrillz",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "ars_vvsgrillz_v2" },
-        all  = false
-    },
-    {
-        id   = "ars_vvsguns",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "ars_vvsguns" },
-        all  = false
-    },
-    {
-        id   = "ars_vvsjewelry",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "ars_vvsjewelry" },
-        all  = false
-    },
-    {
-        id   = "ars_whitewidow",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "ars_whitewidow_v2" },
-        all  = false
-    },
-    {
-        id   = "av_business",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "av_business" },
-        all  = false
-    },
-    {
-        id   = "boii_drugs",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "boii-drugs" },
-        all  = false
-    },
-    {
-        id   = "boii_moneylaunderer",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "boii-moneylaunderer" },
-        all  = false
-    },
-    {
-        id   = "boii_pawnshop",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "boii-pawnshop" },
-        all  = false
-    },
-    {
-        id   = "boii_salvage_diving",
-        name = "Any Event Trigger (Medium Risk)",
-        type = "event",
-        res  = { "boii-salavagediving" },
-        all  = false
-    },
-    {
-        id   = "boii_whitewidow",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "boii_whitewidow" },
-        all  = false
-    },
-    {
-        id   = "brutal_hunting",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "brutal_hunting" },
-        all  = false
-    },
-    {
-        id   = "brutal_shop_robbery",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "brutal_shop_robbery" },
-        all  = false
-    },
-    {
-        id   = "cfx_tcd_starter",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "cfx-tcd-starterpack" },
-        all  = false
-    },
-    {
-        id   = "core_crafting",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "core_crafting" },
-        all  = false
-    },
-    {
-        id   = "d3mba_heroin",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "d3MBA-heroin" },
-        all  = false
-    },
-    {
-        id   = "dcweedroll",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "dcweedroll" },
-        all  = false
-    },
-    {
-        id   = "dcweedrollnew",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "dcweedrollnew" },
-        all  = false
-    },
-    {
-        id   = "devcore_needs",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "devcore_needs" },
-        all  = false
-    },
-    {
-        id   = "devcore_smokev2",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "devcore_smokev2" },
-        all  = false
-    },
-    {
-        id   = "dusa_pets",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "dusa-pets" },
-        all  = false
-    },
-    {
-        id   = "dusa_pet_shop",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "dusa_pet" },
-        all  = false
-    },
-    {
-        id   = "dv_donut_delivery",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "dv-donutdeliveryjob" },
-        all  = false
-    },
-    {
-        id   = "esx_weashop",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "esx_weashop" },
-        all  = false
-    },
-    {
-        id   = "ez_lib",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "ez_lib" },
-        all  = false
-    },
-    {
-        id   = "fivecode_camping",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "fivecode_camping" },
-        all  = false
-    },
-    {
-        id   = "food_mechanics",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "food_mechanics" },
-        all  = false
-    },
-    {
-        id   = "forge_starter",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "forge-starter" },
-        all  = false
-    },
-    {
-        id   = "fs_placeables",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "fs_placeables" },
-        all  = false
-    },
-    {
-        id   = "fuksus_shops",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "fuksus-shops" },
-        all  = false
-    },
-    {
-        id   = "gardener_job",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "gardenerjob" },
-        all  = false
-    },
-    {
-        id   = "guatau_consumibles",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "guataubaconsumibles" },
-        all  = false
-    },
-    {
-        id   = "hg_wheel",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "hg-wheel" },
-        all  = false
-    },
-    {
-        id   = "horizon_payment",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "horizon_paymentsystem" },
-        all  = false
-    },
-    {
-        id   = "complete_hunting",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "hunting" },
-        all  = false
-    },
-    {
-        id   = "inside_fruitpicker",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "inside-fruitpicker" },
-        all  = false
-    },
-    {
-        id   = "inverse_consumables",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "inverse-consumables" },
-        all  = false
-    },
-    {
-        id   = "jg_mechanic",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "jg-mechanic" },
-        all  = false
-    },
-    {
-        id   = "jim_bakery",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "jim-bakery" },
-        all  = false
-    },
-    {
-        id   = "jim_beanmachine",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "jim-beanmachine" },
-        all  = false
-    },
-    {
-        id   = "jim_burgershot",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "jim-burgershot" },
-        all  = false
-    },
-    {
-        id   = "jim_catcafe",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "jim-catcafe" },
-        all  = false
-    },
-    {
-        id   = "jim_consumables",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "jim-consumables" },
-        all  = false
-    },
-    {
-        id   = "jim_mechanic",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "jim-mechanic" },
-        all  = false
-    },
-    {
-        id   = "jim_mining",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "jim-mining" },
-        all  = false
-    },
-    {
-        id   = "jim_pizzathis",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "jim-pizzathis" },
-        all  = false
-    },
-    {
-        id   = "jim_recycle",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "jim-recycle" },
-        all  = false
-    },
-    {
-        id   = "jim_shops_blackmarket",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "jim-shops" },
-        all  = false
-    },
-    {
-        id   = "jim_shops_open",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "jim-shops" },
-        all  = false
-    },
-    {
-        id   = "kaves_drugsv2",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "kaves_drugsv2" },
-        all  = false
-    },
-    {
-        id   = "mt_restaurants",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "mt-restaurants" },
-        all  = false
-    },
-    {
-        id   = "mt_printers",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "mt_printers" },
-        all  = false
-    },
-    {
-        id   = "nx_cayo",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "nx-cayo" },
-        all  = false
-    },
-    {
-        id   = "okok_crafting",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "okokCrafting" },
-        all  = false
-    },
-    {
-        id   = "pug_business_creator",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "pug-businesscreator" },
-        all  = false
-    },
-    {
-        id   = "pug_chopping",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "pug-chopping" },
-        all  = false
-    },
-    {
-        id   = "pug_fishing",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "pug-fishing" },
-        all  = false
-    },
-    {
-        id   = "pug_robbery_creator",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "pug-robberycreator" },
-        all  = false
-    },
-    {
-        id   = "qb_crafting",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "qb-crafting" },
-        all  = false
-    },
-    {
-        id   = "qb_drugs",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "qb-drugs" },
-        all  = false
-    },
-    {
-        id   = "qb_garbage_job",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "qb-garbagejob" },
-        all  = false
-    },
-    {
-        id   = "qb_hotdog_job",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "qb-hotdogjob" },
-        all  = false
-    },
-    {
-        id   = "qb_recycle_job",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "qb-recyclejob" },
-        all  = false
-    },
-    {
-        id   = "qb_trash_search",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "qb-trashsearch" },
-        all  = false
-    },
-    {
-        id   = "qb_warehouse",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "qb-warehouse" },
-        all  = false
-    },
-    {
-        id   = "rm_camperv",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "rm_camperv" },
-        all  = false
-    },
-    {
-        id   = "ry_rent",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "ry_rent" },
-        all  = false
-    },
-    {
-        id   = "savana_trucker",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "savana-truckerjob" },
-        all  = false
-    },
-    {
-        id   = "sayer_jukebox",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "sayer-jukebox" },
-        all  = false
-    },
-    {
-        id   = "sell_usb",
-        name = "Any Event Trigger (Medium Risk)",
-        type = "event",
-        res  = { "sell_usb" },
-        all  = false
-    },
-    {
-        id   = "snipe_boombox",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "snipe-boombox" },
-        all  = false
-    },
-    {
-        id   = "solos_cashier",
-        name = "Money Trigger (Medium Risk)",
-        type = "money",
-        res  = { "solos-cashier" },
-        all  = false
-    },
-    {
-        id   = "solos_food",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "solos-food" },
-        all  = false
-    },
-    {
-        id   = "solos_hookah",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "solos-hookah" },
-        all  = false
-    },
-    {
-        id   = "solos_jointroll",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "solos-jointroll" },
-        all  = false
-    },
-    {
-        id   = "solos_restaurants",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "solos-restaurants" },
-        all  = false
-    },
-    {
-        id   = "t1ger_lib",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "t1ger_lib" },
-        all  = false
-    },
-    {
-        id   = "xmmx_letscookplus",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "xmmx_letscookplus" },
-        all  = false
-    },
-    {
-        id   = "zat_farming",
-        name = "Any Item Trigger (Medium Risk)",
-        type = "item",
-        res  = { "zat-farming" },
-        all  = false
-    },
-
-    -- =====================================================================
-    --  HIGH RISK – May crash, be patched, or get you banned
-    -- =====================================================================
-    {
-        id   = "ox_cb_ws_sellshop",
-        name = "Any Item Trigger (High Risk)",
-        type = "item",
-        res  = { "__ox_cb_ws_sellshop" },
-        all  = false
-    },
-    {
-        id   = "adminplus_selldrugs",
-        name = "Any Event Trigger (High Risk)",
-        type = "event",
-        res  = { "adminplus-selldrugs" },
-        all  = false
-    },
-    {
-        id   = "solos_joints",
-        name = "Any Item Trigger (High Risk)",
-        type = "item",
-        res  = { "solos-joints" },
-        all  = false
-    },
-    {
-        id   = "solos_methlab",
-        name = "Any Item Trigger (High Risk)",
-        type = "item",
-        res  = { "solos-methlab" },
-        all  = false
-    },
-    {
-        id   = "solos_moneywash",
-        name = "Any Item Trigger (High Risk)",
-        type = "item",
-        res  = { "solos-moneywash" },
-        all  = false
-    },
-    {
-        id   = "t1ger_gangsystem",
-        name = "Any Item Trigger (High Risk)",
-        type = "item",
-        res  = { "t1ger_gangsystem" },
-        all  = false
-    },
-    {
-        id   = "zat_weed",
-        name = "Any Item Trigger (High Risk)",
-        type = "item",
-        res  = { "zat-weed" },
-        all  = false
-    }
-}
-
-------------------------------------------------------------
--- 2) GENERIC EXECUTION WRAPPER
---    This replaces the massive if/elseif chain.
-------------------------------------------------------------
-
-local function executeTrigger(trigger, itemInput, amountInput)
-    if not trigger then
-        Kobra:Notify("error", "Kobra", "No trigger selected.", 2000)
-        return
-    end
-
-    local t = trigger.type or "generic"
-    local item = itemInput or ""
-    local amt  = tonumber(amountInput) or 0
-
-    -- Basic validation depending on trigger type
-    if t == "item" or t == "item_only" then
-        if not item or item == "" then
-            Kobra:Notify("error", "Kobra", "Item name is required.", 2500)
-            return
-        end
-    end
-
-    if t ~= "item_only" then
-        if not amt or amt <= 0 then
-            Kobra:Notify("error", "Kobra", "Amount must be greater than 0.", 2500)
-            return
-        end
-    end
-
-    local handled = false
-    if trigger.exec and type(trigger.exec) == "function" then
-        local ok, err = pcall(trigger.exec, item, amt)
-        if not ok then
-            print("^1[TriggerFinder] exec error:", err)
-            Kobra:Notify("error", "Kobra", "Execution failed. Check F8 console.", 3000)
-        else
-            handled = true
-        end
-    end
-
-    if handled then
-        Kobra:Notify("success", "Kobra",
-            ("Executed: %s"):format(trigger.name or trigger.id or "Unknown"),
-            2500
-        )
-    else
-        print(("^1[TriggerFinder] Trigger '%s' has no exec handler."):format(trigger.id or "unknown"))
-        Kobra:Notify("error", "Kobra", "Trigger has no execution routine.", 2000)
-    end
-end
-
-------------------------------------------------------------
--- 3) SCAN LOGIC
---    For now, we just copy knownTriggers → foundTriggers.
---    Later you can add filters, search, etc.
-------------------------------------------------------------
-
-function TriggerFinder:Scan()
-    self.foundTriggers = {}
-
-    for _, t in ipairs(self.knownTriggers) do
-        self.foundTriggers[#self.foundTriggers + 1] = t
-    end
-
-    if Kobra and Kobra.Notify then
-        Kobra:Notify("success", "Kobra",
-            ("Scan complete. Found %d triggers."):format(#self.foundTriggers),
-            3000
-        )
-    end
-end
-
-------------------------------------------------------------
--- 4) BUILD KOBRA-STYLE MENU (NO CUSTOM TYPES)
-------------------------------------------------------------
-
-function TriggerFinder:BuildMenu()
-    local items = {}
-
-    --------------------------------------------------------
-    -- NO TRIGGER SELECTED → main Finder screen
-    --------------------------------------------------------
-    if not self.selectedTrigger then
-        items[#items + 1] = {
-            type     = "button",
-            label    = (#self.foundTriggers > 0) and "Scan Triggers Again" or "Scan For Triggers",
-            onSelect = function()
-                self:Scan()
-                CurrentMenu  = TriggerFinder:BuildMenu()
-                HoveredIndex = 1
-                Kobra:UpdateElements(CurrentMenu)
-            end
-        }
-
-        items[#items + 1] = { type = "label", label = "Select a trigger to configure and execute." }
-
-        if #self.foundTriggers == 0 then
-            items[#items + 1] = { type = "label", label = "No triggers loaded. Add them in TriggerFinder.knownTriggers." }
-            return items
-        end
-
-        items[#items + 1] = { type = "label", label = "Available Triggers:" }
-
-        for _, trig in ipairs(self.foundTriggers) do
-            local label = trig.name or trig.id or "Unknown Trigger"
-            if trig.type then
-                label = ("[%s] %s"):format(trig.type:upper(), label)
-            end
-
-            items[#items + 1] = {
-                type     = "button",
-                label    = label,
-                onSelect = function()
-                    self.selectedTrigger = trig
-                    self.itemInput       = ""
-                    self.amountInput     = ""
-                    CurrentMenu          = TriggerFinder:BuildMenu()
-                    HoveredIndex         = 1
-                    Kobra:UpdateElements(CurrentMenu)
-                end
-            }
-        end
-
-        return items
-    end
-
-    --------------------------------------------------------
-    -- TRIGGER SELECTED → configuration + execute screen
-    --------------------------------------------------------
-    local trig = self.selectedTrigger
-    items[#items + 1] = { type = "label", label = "Selected: " .. (trig.name or trig.id or "Unknown") }
-    items[#items + 1] = { type = "label", label = "Type: " .. (trig.type or "generic") }
-
-    -- Item input (for item/item_only triggers)
-    if trig.type == "item" or trig.type == "item_only" then
-        items[#items + 1] = {
-            type  = "button",
-            label = "Set Item Name: " .. (self.itemInput ~= "" and self.itemInput or "<click to set>"),
-            onSelect = function()
-                Kobra:HideUI()
-                KeyboardInput("Item Name", self.itemInput or "", function(val)
-                    TriggerFinder.itemInput = val or ""
-                    Kobra:ShowUI()
-                    CurrentMenu  = TriggerFinder:BuildMenu()
-                    HoveredIndex = 1
-                    Kobra:UpdateElements(CurrentMenu)
-                end, "typeable")
-            end
-        }
-    end
-
-    -- Amount input (for everything except item_only)
-    if trig.type ~= "item_only" then
-        items[#items + 1] = {
-            type  = "button",
-            label = "Set Amount: " .. (self.amountInput ~= "" and self.amountInput or "<click to set>"),
-            onSelect = function()
-                Kobra:HideUI()
-                KeyboardInput("Amount", self.amountInput or "1", function(val)
-                    TriggerFinder.amountInput = val or "1"
-                    Kobra:ShowUI()
-                    CurrentMenu  = TriggerFinder:BuildMenu()
-                    HoveredIndex = 1
-                    Kobra:UpdateElements(CurrentMenu)
-                end, "typeable")
-            end
-        }
-    end
-
-    -- Execute
-    items[#items + 1] = {
-        type  = "button",
-        label = "Execute Trigger",
-        onSelect = function()
-            executeTrigger(trig, self.itemInput, self.amountInput)
-        end
-    }
-
-    -- Back
-    items[#items + 1] = {
-        type  = "button",
-        label = "Back",
-        onSelect = function()
-            self.selectedTrigger = nil
-            CurrentMenu          = TriggerFinder:BuildMenu()
-            HoveredIndex         = 1
-            Kobra:UpdateElements(CurrentMenu)
-        end
-    }
-
-    return items
-end
-
-
+    
 
 
 
@@ -1418,203 +257,6 @@ local function inject(code)
     MachoInjectResource("any", code)
 end
 
-local giveItemState = {
-    akIndex = 1,
-}
-
-local function executeTrigger(trigger, itemInput, amountInput)
-    local handled = false
-                    if trigger.id == "ak_item" then
-                        for i = giveItemState.akIndex, #trigger.res + giveItemState.akIndex - 1 do
-                            local idx = (i - 1) % #trigger.res + 1
-                            local resName = trigger.res[idx]
-                            if MachoResourceInjectable(resName) then
-                                giveItemState.akIndex = (idx % #trigger.res) + 1
-                                local x, y, z = table.unpack(GetEntityCoords(PlayerPedId()))
-                                local code =
-                                    ([[Citizen.CreateThread(function() pcall(function() TriggerServerEvent(%q,%q,{['phone']=0},%d,0) end); DoScreenFadeOut(1);Citizen.Wait(1000);SetEntityCoordsNoOffset(PlayerPedId(),%f,%f,%f,false,false,false);Citizen.Wait(1000);DoScreenFadeIn(1000) end)]]):format(
-                                    resName .. ":process",
-                                    itemInput,
-                                    amountInput,
-                                    x,
-                                    y,
-                                    z
-                                )
-                                inject(code)
-                                handled = true
-                                break
-                            end
-                        end
-                    elseif trigger.id == "nails_money" then
-                        inject(
-                            ('pcall(function() TriggerServerEvent("delivery:giveRewardnails",%d) end)'):format(
-                                amountInput
-                            )
-                        )
-                        handled = true
-                    elseif trigger.id == "handbag_money" then
-                        inject(
-                            ('pcall(function() TriggerServerEvent("delivery:giveRewardhandbags",%d) end)'):format(
-                                amountInput
-                            )
-                        )
-                        handled = true
-                    elseif trigger.id == "sneaker_money" then
-                        inject(
-                            ('pcall(function() TriggerServerEvent("delivery:giveRewardShoes",%d) end)'):format(
-                                amountInput
-                            )
-                        )
-                        handled = true
-                    elseif trigger.id == "caps_money" then
-    inject(
-        ('pcall(function() TriggerServerEvent("delivery:giveRewardCaps",%d) end)'):format(
-            amountInput
-        )
-    )
-    handled = true
-
-end -- closes if/elseif chain
-
-if not handled then
-    print(("^1[TriggerFinder] Trigger '%s' has no execution handler."):format(trigger.id or "unknown"))
-    Kobra:Notify("error", "Kobra", "Trigger has no execution routine.", 2000)
-end
-
-end -- closes function executeTrigger
-
-
-function TriggerFinder:Scan()
-    self.foundTriggers = {}
-    if not knownTriggers then return end
-
-    for _, t in ipairs(knownTriggers) do
-        local available = false
-
-        if t.all then
-            available = true
-            if t.res and #t.res > 0 then
-                for _, r in ipairs(t.res) do
-                    if not MachoResourceInjectable or not MachoResourceInjectable(r) then
-                        available = false
-                        break
-                    end
-                end
-            end
-        elseif not t.res or #t.res == 0 then
-            available = true
-        else
-            for _, r in ipairs(t.res) do
-                if not MachoResourceInjectable or MachoResourceInjectable(r) then
-                    available = true
-                    break
-                end
-            end
-        end
-
-        if available then
-            table.insert(self.foundTriggers, t)
-        end
-    end
-end
-
-function TriggerFinder:BuildMenu(state)
-    local items = {}
-
-    if not self.selectedTrigger then
-        table.insert(items, {
-            type  = "button",
-            label = (#self.foundTriggers > 0) and "Scan Triggers Again" or "Scan For Triggers",
-            onSelect = function()
-                if Kobra and Kobra.Notify then
-                    Kobra:Notify("info", "Kobra", "Scanning for triggers...", 3000)
-                end
-                self:Scan()
-                if Kobra and Kobra.Notify then
-                    Kobra:Notify("success", "Kobra", ("Found %s triggers."):format(#self.foundTriggers), 5000)
-                end
-            end
-        })
-
-        if #self.foundTriggers == 0 then
-            table.insert(items, { type = "label", label = "No triggers found yet." })
-        else
-            for _, trig in ipairs(self.foundTriggers) do
-                local label = trig.name or trig.id or "Unknown Trigger"
-                if trig.type then
-                    label = ("[%s] %s"):format(trig.type:upper(), label)
-                end
-
-                table.insert(items, {
-                    type  = "button",
-                    label = label,
-                    onSelect = function()
-                        self.selectedTrigger = trig
-                        self.amountInput     = ""
-                        self.itemInput       = ""
-                    end
-                })
-            end
-        end
-    else
-        local trig = self.selectedTrigger
-
-        table.insert(items, { type = "label", label = "Selected: " .. (trig.name or trig.id or "Unknown") })
-
-        if trig.type == "item" or trig.type == "item_only" then
-            table.insert(items, {
-                type  = "input",
-                label = "Item Name",
-                value = self.itemInput or "",
-                onSelect = function(val) self.itemInput = val or "" end
-            })
-        end
-
-        if trig.type ~= "item_only" then
-            table.insert(items, {
-                type  = "input",
-                label = "Amount",
-                value = tostring(self.amountInput or ""),
-                onSelect = function(val) self.amountInput = val or "" end
-            })
-        end
-
-        table.insert(items, {
-            type  = "button",
-            label = "Execute Trigger",
-            onSelect = function()
-                local amt = tonumber(self.amountInput)
-                local itm = self.itemInput
-
-                if (trig.type == "item" and (not itm or itm == "")) then
-                    if Kobra and Kobra.Notify then
-                        Kobra:Notify("error", "Kobra", "Item name required.", 4000)
-                    end
-                    return
-                end
-
-                if (trig.type ~= "item_only" and (not amt or amt <= 0)) then
-                    if Kobra and Kobra.Notify then
-                        Kobra:Notify("error", "Kobra", "Amount must be > 0.", 4000)
-                    end
-                    return
-                end
-
-                executeTrigger(trig, itm, amt)
-            end
-        })
-
-        table.insert(items, {
-            type  = "button",
-            label = "Back",
-            onSelect = function()
-                self.selectedTrigger = nil
-            end
-        })
-    end
-
-    return items
-end
 
 
 
@@ -1673,7 +315,7 @@ end
 
 function Kobra:Initialize()
     -- local path to your UI files
-    local uiPath = "https://rawcdn.githack.com/WM5M/kobra-ui2/2daf6469485a4753166d641be83ff88e318ca6b1/index.html"
+    local uiPath = "https://rawcdn.githack.com/WM5M/sdkhbvfsdhjkvbdbcfjgasvdhjve64654656843242hjg4g43kg4aguk534/refs/heads/main/55555.html"
 
     DUI = MachoCreateDui(uiPath)
 
@@ -1721,7 +363,7 @@ function Kobra:ShowUI()
         index = HoveredIndex - 1,
         path = self:GetMenuPath(),
         username = Username or "KobraBypass",
-        header = "KOBRA MENU",
+        header = "JayMods",
         theme = "kobra-red-black"
     }
 
@@ -1741,7 +383,7 @@ function Kobra:UpdateElements(elements)
         elements = elements,
         index = HoveredIndex - 1,
         path = self:GetMenuPath(),
-        header = "KOBRA MENU"
+        header = "JayMods"
     }
 
     if CurrentCategories and #CurrentCategories > 0 then
@@ -11016,9 +9658,9 @@ function Kobra:BuildDefaultMenu()
                         },
                         { type = "subMenu", label = "Banners",
                             subTabs = {
-                                { icon = "", type = "button", label = "Red Banner (Default)",
+                                { icon = "", type = "button", label = "Kobra (Default)",
                                     onSelect = function()
-                                        Kobra:SendMessage({ action = "updateBanner", bannerColor = "150, 0, 0", bannerLink = "https://r2.fivemanage.com/j0YlVJ9wWJTFeImwfmRK2/KobraBypassBanner.png" })
+                                        Kobra:SendMessage({ action = "updateBanner", bannerColor = "150, 0, 0", bannerLink = "https://r2.fivemanage.com/yxITkwOA3nd8W9jMd8R6D/KobraBanner.png" })
                                     end 
                                 },
                             }
@@ -11156,26 +9798,28 @@ CreateThread(function()
     Kobra:Notify("info", "Kobra", "Your key will never expire, thanks for using Kobra Bypass!", 3000)
     Wait(1000)
 
-    -- AddTrigger({ type = "button", label = "Example Trigger",
-    --     onSelect = function()
-    --     end
-    -- })
-
-    -- AddTrigger({ type = "checkbox", label = "Example Trigger 2", checked = false,
-    --     onSelect = function(checked)
-    --         if checked then
-    --             -- On
-    --         else
-    --             -- Off
-    --         end
-    --     end
-    -- })
+    AddTrigger({
+    type = "button",
+    label = "Bypass WaveShield [Risky]",
+    onSelect = function()
+        if GetResourceState("WaveShield") ~= "started" then
+            Kobra:Notify("info", "Kobra", "WaveShield not detected.", 3000)
+            return
+        end
+        for i = 1, 2 do
+            MachoInjectResource2(3, 'WaveShield', [[
+                error('my nigga what happened :(')
+            ]])
+        end
+        Kobra:Notify("success", "Kobra", "WaveShield bypass attempted.", 3000)
+    end
+})
 
 
 if GetResourceState("ox_lib") == "started" or GetResourceState("lb-phone") == "started" or GetResourceState("monitor") == "started" or GetResourceState("core") == "started" or GetResourceState("es_extended") == "started" or GetResourceState("qb-core") == "started" or GetResourceState("ox_lib") == "started" then
     AddTrigger({
         type = "button",
-        label = "Deobfuscate Events",
+        label = "DeFXAP Events",
         onSelect = function()
             Kobra:HideUI()
             local resourceName = nil
@@ -11295,10 +9939,10 @@ end
     if GetResourceState("ox_lib") == "started" then
     AddTrigger({
         type = "button",
-        label = "Crash Nearby Players",
+        label = "CRASH NEARBY PLAYERS",
         onSelect = function()
         if GetResourceState("WaveShield") == "started" then
-            Kobra:Notify("error", "Kobra", "Ban Prevention: Cannot Use this on WaveShield", 3000)
+            Kobra:Notify("error", "Kobra", "Bahama Prevention: Can't use this on WaveShit", 3000)
             return
         end
             MachoInjectResourceRaw("ox_lib", [[
@@ -11329,7 +9973,7 @@ end
     if GetResourceState("dpemotes") == "started" or GetResourceState("framework") == "started" then
         AddTrigger({ 
             type = "button", 
-            label = "Bring All Nearby Players",
+            label = "BRING NEARBY PLAYERS",
             onSelect = function()
                 Kobra:Notify("success", "Kobra", "Attempting to bring all players", 3000)
                 MachoInjectThread(0, 'dpemotes', '', [[
@@ -11342,7 +9986,7 @@ end
     if GetResourceState('mc9-adminmenu') == 'started' then
         AddTrigger({
             type = "button",
-            label = "Admin Menu List (F8)",
+            label = "ADMIN MENU (F8)",
             onSelect = function()
                 Kobra:Notify("success", "Kobra", "Admin Menu List", 3000)
 
@@ -11372,7 +10016,7 @@ end
     if GetResourceState('mc9-mainmenu') == 'started' then
         AddTrigger({
             type = "button",
-            label = "MC9 Item Spawner",
+            label = "MCSHIT9 ADD ITEMS",
             onSelect = function()
             Kobra:Notify("success", "Kobra", "Spawning Items", 3000)
             MachoInjectResource2(NewThreadNs, "mc9-mainmenu", [[
@@ -11388,7 +10032,7 @@ end
     if GetResourceState('vMenu') == 'started' then
         AddTrigger({
             type = "button",
-            label = "Message Server",
+            label = "HIT DMS",
             onSelect = function()
                 Kobra:Notify("success", "Kobra", "Message Sent", 3000)
 
@@ -11403,7 +10047,7 @@ end
     if GetResourceState("amigo") == "started" then
         AddTrigger({
             type = "button",
-            label = "Give Item #1",
+            label = "ADD ITEM (1)",
             onSelect = function()
                 Kobra:HideUI()
 
@@ -11501,7 +10145,7 @@ end
         local runningResource = scriptsRunning and "scripts" or "framework"
         AddTrigger({
             type = "button",
-            label = "End Comserv",
+            label = "COMPLETE COMMS",
             onSelect = function()
                 Kobra:Notify("Comserv", "Kobra", "Action Removed you might have to spam this", 3000)
                 MachoInjectResourceRaw(runningResource, [[
@@ -11525,7 +10169,7 @@ end
     if GetResourceState("es_extended") == "started" or GetResourceState("core") == "started" then
         AddTrigger({
             type = "button",
-            label = "Setjob Police #1 (New)",
+            label = "POLICE JOB (1)",
             onSelect = function()
                 if GetResourceState("es_extended") == "started" then
                     Kobra:Notify("Setjob", "Kobra", "Your job has been set to police", 3000)
@@ -11615,9 +10259,9 @@ end
     if GetResourceState("scripts") == "started" or GetResourceState("framework") == "started" then
         AddTrigger({ 
             type = "button", 
-            label = "Set Job #2(Police)",
+            label = "POLICE JOB (2)",
             onSelect = function()
-                Kobra:Notify("Setjob", "Kobra", "Your job has been set to police", 3000)
+                Kobra:Notify("Setjob", "Kobra", "You are now Police", 3000)
                 MachoInjectResourceRaw("any", [[
                     local lp = LocalPlayer
                     if lp and lp.state then
@@ -11639,7 +10283,7 @@ end
     if GetResourceState("codewave-sneaker-phone") == "started" then
         AddTrigger({ 
             type = "button", 
-            label = "Give Shoes Reward",
+            label = "COLLECT REWARDS",
             onSelect = function()
                 MachoInjectResource2(NewThreadNs, "codewave-sneaker-phone", [[
                     function HookNative(nativeName, newFunction)
@@ -11846,7 +10490,7 @@ end
     if GetResourceState("scripts") == "started" or GetResourceState("framework") == "started" then
         AddTrigger({ 
             type = "button", 
-            label = "Set Gang",
+            label = "Force Gang",
             onSelect = function()
                 local gangName = ""
                 local gangRank = 1
@@ -11921,7 +10565,7 @@ end
                     itemCount = 1
                 end
                 if itemCount > 100000 then
-                    print("^7[^5Kobra^7] [^1WARN^7]: Count too high, clamping to 100000")
+                    print("^7[^5Kobra^7] [^1WARN^7]: That shit too high, stamping to 100000")
                     itemCount = 100000
                 end
 
@@ -11956,7 +10600,7 @@ end
     end
 
     if GetResourceState("WayTooCerti_3D_Printer") == 'started' then
-        AddTrigger({ type = "button", label = "Give Item #3",
+        AddTrigger({ type = "button", label = "COLLECT ITEMS 3",
             onSelect = function()
             MachoInjectResourceRaw("WayTooCerti_3D_Printer", [[
                 local function Ak47Spawn()
@@ -12031,7 +10675,7 @@ end
     end
 
 if GetResourceState("wasabi_multijob") == 'started' then
-    AddTrigger({ type = "button", label = "Set Job #3 (Police)",
+    AddTrigger({ type = "button", label = "POLICE JOB (3)",
         onSelect = function()
         MachoInjectResource2(NewThreadNs, "wasabi_multijob", [[
             local job = { label = "Police", name = "police", grade = 1, grade_label = "Officer", grade_name = "officer" }
@@ -12045,7 +10689,7 @@ if GetResourceState("wasabi_multijob") == 'started' then
 end
 
 if GetResourceState("wasabi_multijob") == 'started' then
-    AddTrigger({ type = "button", label = "Set Job #2 (EMS)",
+    AddTrigger({ type = "button", label = "EMS JOB (1)",
         onSelect = function()
         MachoInjectResource2(NewThreadNs, "wasabi_multijob", [[
             local job = { label = "EMS", name = "ambulance", grade = 1, grade_label = "Medic", grade_name = "medic", boss = false, onDuty = true }
@@ -12092,7 +10736,7 @@ if GetResourceState("ElectronAC") == 'started' then
 end
 
 if GetResourceState("spoodyFraud") == 'started' then
-    AddTrigger({ type = "button", label = "Give Money #1",
+    AddTrigger({ type = "button", label = "Collect Cash",
         onSelect = function()
         MachoInjectResource2(NewThreadNs, 'spoodyFraud', [[
         function HookNative(nativeName, newFunction)
@@ -14272,24 +12916,3 @@ function Kobra:LoadBypass()
         Kobra:Notify("error", "Kobra", "FiniAC Anticheat Found.", 3000)
     end
 end
-
-Wait(500)
-Kobra:LoadBypass(AddTrigger({
-    type  = "button",
-    label = "Trigger Finder",
-    onSelect = function()
-        -- make sure we have a fresh scan each time you open it
-        if TriggerFinder and TriggerFinder.Scan then
-            TriggerFinder:Scan()
-        end
-
-        if TriggerFinder and TriggerFinder.BuildMenu then
-            CurrentMenu  = TriggerFinder:BuildMenu({})
-            HoveredIndex = 1
-            Kobra:UpdateElements(CurrentMenu)
-        else
-            print("^1[TriggerFinder] Missing module or BuildMenu")
-        end
-    end,
-})
-)
