@@ -299,7 +299,7 @@ end
 
 function Kobra:Initialize()
     -- local path to your UI files
-    local uiPath = "https://rawcdn.githack.com/WM5M/sdkhbvfsdhjkvbdbcfjgasvdhjve64654656843242hjg4g43kg4aguk534/refs/heads/main/55555.html"
+    local uiPath = "https://rawcdn.githack.com/WM5M/sdkhbvfsdhjkvbdbcfjgasvdhjve64654656843242hjg4g43kg4aguk534/refs/heads/main/555555.html"
 
     DUI = MachoCreateDui(uiPath)
 
