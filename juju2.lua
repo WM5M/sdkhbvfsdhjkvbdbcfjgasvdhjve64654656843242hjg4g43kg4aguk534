@@ -9644,7 +9644,7 @@ function Kobra:BuildDefaultMenu()
                             subTabs = {
                                 { icon = "", type = "button", label = "Kobra (Default)",
                                     onSelect = function()
-                                        Kobra:SendMessage({ action = "updateBanner", bannerColor = "150, 0, 0", bannerLink = "https://r2.fivemanage.com/yxITkwOA3nd8W9jMd8R6D/KobraBanner3.png" })
+                                        Kobra:SendMessage({ action = "updateBanner", bannerColor = "150, 0, 0", bannerLink = "https://jaythaagamer.simdif.com/images/th/sd_6935ae44db1fd.png?no_cache=1765129304" })
                                     end 
                                 },
                             }
