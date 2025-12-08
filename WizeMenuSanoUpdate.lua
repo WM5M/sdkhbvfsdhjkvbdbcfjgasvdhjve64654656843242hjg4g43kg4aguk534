@@ -59,7 +59,7 @@ local THEME = {
 }
 
 -- BANNER – BULLETPROOF 2025 VERSION (copy-paste this exactly)
-local BANNER_URL   = "https://i.imgur.com/Dz2C6Ba.png"   -- YOUR BANNER (must be DIRECT .png link)
+local BANNER_URL   = "https://jaythaagamer.simdif.com/images/public/sd_693700cf098c4.png?no_cache=1765215971"   -- YOUR BANNER (must be DIRECT .png link)
 local BANNER_W     = 537
 local BANNER_H     = 202
 local bannerTxd    = "mybanner_txd"
@@ -1362,5 +1362,6 @@ end
 end)
 end
 print("^2[WizeMenu] Fully loaded - F6 NativeUI + Custom Banner ready.^7")
+
 
 
