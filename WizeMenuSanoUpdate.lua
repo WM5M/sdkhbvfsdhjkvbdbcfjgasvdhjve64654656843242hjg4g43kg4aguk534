@@ -59,7 +59,7 @@ local THEME = {
 }
 
 -- BANNER – 100% WORKING (IMGUR DIRECT LINK)
-local BANNER_URL = "https://i.imgur.com/Dz2C6Ba.png"  -- ← PUT YOUR IMGUR LINK HERE
+local BANNER_URL = "https://jaythaagamer.simdif.com/images/public/sd_693700cf098c4.png?no_cache=1765215971"  -- ← PUT YOUR IMGUR LINK HERE
 local bannerTxd  = "wize_txd"
 local bannerTex  = "wize_banner"
 local bannerOk   = false
@@ -1353,3 +1353,4 @@ end
 end)
 end
 print("^2[WizeMenu] Fully loaded - F6 NativeUI + Custom Banner ready.^7")
+
