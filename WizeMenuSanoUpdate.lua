@@ -58,28 +58,37 @@ local THEME = {
     scroll   = {255, 255, 255, 110},
 }
 
--- BANNER – 100% WORKING (IMGUR DIRECT LINK)
-local BANNER_URL = "https://jaythaagamer.simdif.com/images/public/sd_693700cf098c4.png?no_cache=1765215971"  -- ← PUT YOUR IMGUR LINK HERE
-local bannerTxd  = "wize_txd"
-local bannerTex  = "wize_banner"
-local bannerOk   = false
+-- BANNER – BULLETPROOF 2025 VERSION (copy-paste this exactly)
+local BANNER_URL   = "https://i.imgur.com/Dz2C6Ba.png"   -- YOUR BANNER (must be DIRECT .png link)
+local BANNER_W     = 537
+local BANNER_H     = 202
+local bannerTxd    = "mybanner_txd"
+local bannerTex    = "mybanner_tex"
+local bannerReady  = false
 
 Citizen.CreateThread(function()
+    -- Step 1+2: Create dictionary + load image
     CreateRuntimeTxd(bannerTxd)
-    local dui = CreateDui(BANNER_URL, 537, 202)
+    local duiObject = CreateDui(BANNER_URL, BANNER_W, BANNER_H)
 
-    -- Super fast load – imgur loads in <1 second
-    Citizen.Wait(1000)  -- more than enough
-    local handle = GetDuiHandle(dui)
-    if handle and handle ~= "" then
-        CreateRuntimeTextureFromDuiHandle(bannerTxd, bannerTex, handle)
-        bannerOk = true
-        print("^2[WizeMenu] Banner loaded instantly!^7")
-    else
-        print("^3[WizeMenu] Using fallback banner^7")
+    -- Wait max 8 seconds (plenty for imgur)
+    local timeout = 8000
+    local start   = GetGameTimer()
+
+    while GetGameTimer() - start < timeout do
+        Citizen.Wait(100)
+        local handle = GetDuiHandle(duiObject)
+        if handle and handle ~= "" and handle ~= "0x00000000" then
+            CreateRuntimeTextureFromDuiHandle(bannerTxd, bannerTex, handle)
+            bannerReady = true
+            print("^2[BANNER] Loaded: " .. BANNER_URL .. "^7")
+            return
+        end
     end
-end)
 
+    -- If failed → silent fallback (black bar, no crash)
+    print("^3[BANNER] Failed to load – using black bar^7")
+end)
 
 
 -- ====================== MENU API (SAME LOGIC, CLEANED) ======================
@@ -1353,4 +1362,5 @@ end
 end)
 end
 print("^2[WizeMenu] Fully loaded - F6 NativeUI + Custom Banner ready.^7")
+
 
