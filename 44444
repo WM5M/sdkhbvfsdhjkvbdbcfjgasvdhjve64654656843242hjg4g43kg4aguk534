@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kobra Menu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: white;
+            background: rgba(0, 0, 0, 0.8);
+            display: none; /* Hidden by default */
+        }
+        #menuContainer {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+        }
+        /* Add your existing menu styles here... */
+        #keyboardContainer {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border: 2px solid red;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1000;
+        }
+        #keyboardTitle {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        #keyboardValue {
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="menuContainer">
+        <!-- Your existing menu HTML elements here (e.g., divs for elements, categories, etc.) -->
+    </div>
+    <div id="keyboardContainer">
+        <h2 id="keyboardTitle">Title</h2>
+        <p id="keyboardValue">Value</p>
+    </div>
+
+    <script>
+        window.addEventListener('message', function(event) {
+            const data = event.data;
+
+            if (data.action === 'showUI') {
+                document.body.style.display = data.visible ? 'block' : 'none';
+                // Handle other UI updates like elements, path, etc.
+                // Your existing JS for updating menu elements here...
+            } else if (data.action === 'updateElements') {
+                // Your existing JS for updating menu tabs/categories here...
+            } else if (data.action === 'updateKeyboard') {
+                const keyboardDiv = document.getElementById('keyboardContainer');
+                keyboardDiv.style.display = data.visible ? 'block' : 'none';
+                if (data.visible) {
+                    document.getElementById('keyboardTitle').innerText = data.title || 'Input';
+                    document.getElementById('keyboardValue').innerText = data.value || '';
+                }
+            }
+            // Add other action handlers here...
+        });
+    </script>
+</body>
+</html>
