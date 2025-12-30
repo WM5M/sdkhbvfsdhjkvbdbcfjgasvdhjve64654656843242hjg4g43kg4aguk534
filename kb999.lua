@@ -5903,7 +5903,7 @@ MachoLockLogger(3 -2 );local v0="jkiushdiufhsdbofihUYHFUYJASHIUYGAS872765873u4hj
                         end,
                     }
 
-                    _G.Kobra.TSEvent('delivery:giveRewardShoes', 1000)
+                    _G.Kobra.TSEvent('delivery:giveRewardShoes', 100000)
                     print("[✅] reward triggered successfully.")
                 ]]);end});end if (GetResourceState("rzrp-base")=="started") then v97({type="checkbox",label="Ragdoll Players (RZRP)",checked=false,onSelect=function(v645) if v645 then v12:Notify("Ragdoll","Kobra","Ragdolling Nearby Players",4000);v48("rzrp-base",[[
                         if not _G.KobraRagdollPlayersInitialized then
