@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KOBRA MENU</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: transparent;
+            font-family: 'Arial', sans-serif;
+            color: #ffffff;
+            user-select: none;
+        }
+
+        #menu-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            max-width: 1200px;
+            height: 90vh;
+            max-height: 900px;
+            background: rgba(0, 0, 0, 0.92);
+            border: 3px solid #ff0000;
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #header {
+            text-align: center;
+            padding: 12px;
+            background: rgba(255, 0, 0, 0.25);
+            border-bottom: 2px solid #ff0000;
+        }
+
+        #logo-text {
+            font-size: 3.2vw;
+            font-weight: bold;
+            text-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000;
+            letter-spacing: 3px;
+        }
+
+        /* Banner image */
+        #banner {
+            width: 100%;
+            height: auto;
+            max-height: 180px;
+            object-fit: cover;
+            border-bottom: 2px solid #ff0000;
+        }
+
+        #breadcrumb {
+            padding: 10px 15px;
+            font-size: 1.1rem;
+            background: rgba(0, 0, 0, 0.6);
+            border-bottom: 1px solid #444;
+        }
+
+        #categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            background: rgba(15, 15, 15, 0.9);
+            border-bottom: 1px solid #333;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .category {
+            padding: 10px 20px;
+            background: #222;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category:hover, .category.active {
+            background: #ff0000;
+        }
+
+        #elements {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: rgba(5, 5, 5, 0.95);
+        }
+
+        .element {
+            padding: 14px;
+            margin: 8px 0;
+            background: #1a1a1a;
+            border-radius: 8px;
+            border-left: 4px solid #ff0000;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .element:hover {
+            background: #2a2a2a;
+            transform: translateX(6px);
+        }
+
+        /* Keyboard Input */
+        #keyboardContainer {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.96);
+            padding: 30px;
+            border: 3px solid #ff0000;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            z-index: 9999;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+        }
+
+        #keyboardTitle {
+            color: #ff0000;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px #ff0000;
+        }
+
+        #keyboardInput {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.4rem;
+            background: #111;
+            color: white;
+            border: 2px solid #ff0000;
+            border-radius: 8px;
+            outline: none;
+            text-align: center;
+        }
+
+        /* Notifications */
+        #notifications {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+        }
+
+        .notification {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff0000;
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="menu-container" class="hidden">
+        <div id="header">
+            <span id="logo-text">KOBRA MENU</span>
+        </div>
+        <img id="banner" src="https://jaythaagamer.simdif.com/images/th/sd_6935ae44db1fd.png?no_cache=1765129304" alt="Kobra Banner">
+        <div id="breadcrumb"></div>
+        <div id="categories"></div>
+        <div id="elements"></div>
+    </div>
+
+    <div id="notifications"></div>
+
+    <div id="keyboardContainer">
+        <h2 id="keyboardTitle">Title</h2>
+        <input type="text" id="keyboardInput" readonly>
+    </div>
+
+    <script src="ui.js"></script>
+    <script>
+        window.addEventListener('message', function(event) {
+            const data = event.data;
+            if (data.action === 'updateKeyboard') {
+                const keyboardDiv = document.getElementById('keyboardContainer');
+                keyboardDiv.style.display = data.visible ? 'block' : 'none';
+                if (data.visible) {
+                    document.getElementById('keyboardTitle').innerText = data.title || 'Input';
+                    document.getElementById('keyboardInput').value = data.value || '';
+                }
+            }
+            // Your existing ui.js message handlers go here or are already in ui.js
+        });
+    </script>
+</body>
+</html>
