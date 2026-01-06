@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<!-- ✅ REQUIRED: prevents oversized UI -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>JayMods</title>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body style="margin:0; overflow-x:hidden;">
+
+<!-- ✅ MENU CONTAINER FIXED -->
+<div id="menu-container" class="hidden"
+style="
+width:90%;
+max-width:400px;
+margin:20px auto;
+box-sizing:border-box;
+overflow:hidden;
+">
+
+    <div id="header">
+        <span id="logo-text">JayMods</span>
+    </div>
+
+    <!-- ✅ IMAGE FIXED -->
+    <img src="https://jaythaagamer.simdif.com/images/th/sd_6935ae44db1fd.png?no_cache=1765129304"
+         alt="Kobra Banner"
+         style="width:100%; height:auto; display:block; margin-bottom:10px;">
+
+    <!-- ✅ CONTENT CONTAINERS -->
+    <div id="breadcrumb" style="word-wrap:break-word;"></div>
+
+    <div id="categories" style="max-width:100%; overflow:hidden;"></div>
+
+    <div id="elements" style="max-width:100%; overflow:hidden;"></div>
+
+</div>
+
+<div id="notifications"></div>
+
+<!-- ✅ KEYBOARD UI FIXED -->
+<div id="keyboardContainer"
+style="
+display:none;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%, -50%);
+background:rgba(0,0,0,0.9);
+padding:20px;
+border:2px solid red;
+border-radius:10px;
+text-align:center;
+z-index:1000;
+width:90%;
+max-width:350px;
+box-sizing:border-box;
+">
+
+    <h2 id="keyboardTitle">Title</h2>
+
+    <input type="text"
+           id="keyboardInput"
+           readonly
+           style="
+           width:100%;
+           padding:10px;
+           font-size:18px;
+           background:rgba(255,255,255,0.1);
+           color:white;
+           border:1px solid white;
+           border-radius:5px;
+           box-sizing:border-box;
+           ">
+</div>
+
+<script src="ui.js"></script>
+
+<script>
+window.addEventListener('message', function(event) {
+    const data = event.data;
+
+    if (data.action === 'updateKeyboard') {
+        const keyboardDiv = document.getElementById('keyboardContainer');
+        keyboardDiv.style.display = data.visible ? 'block' : 'none';
+
+        if (data.visible) {
+            document.getElementById('keyboardTitle').innerText = data.title || 'Input';
+            document.getElementById('keyboardInput').value = data.value || '';
+        }
+    }
+});
+</script>
+
+</body>
+</html>
