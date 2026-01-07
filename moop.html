@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KOBRA MENU</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: transparent;
+            font-family: 'Arial', sans-serif;
+            color: #ffffff;
+            user-select: none;
+        }
+
+        /* Menu positioned top-left, smaller size */
+        #menu-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 500px;
+            height: 650px;
+            background: rgba(0, 0, 0, 0.92);
+            border: 3px solid #ff0000;
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            /* Start completely hidden - no blank menu on load */
+            display: none;
+        }
+
+        #header {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 0, 0, 0.25);
+            border-bottom: 2px solid #ff0000;
+        }
+
+        #logo-text {
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000;
+            letter-spacing: 3px;
+        }
+
+        /* Banner */
+        #banner {
+            width: 100%;
+            height: auto;
+            max-height: 120px;
+            object-fit: cover;
+            border-bottom: 2px solid #ff0000;
+        }
+
+        #breadcrumb {
+            padding: 8px 12px;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.6);
+            border-bottom: 1px solid #444;
+        }
+
+        #categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 10px;
+            background: rgba(15, 15, 15, 0.9);
+            border-bottom: 1px solid #333;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .category {
+            padding: 8px 16px;
+            background: #222;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .category:hover, .category.active {
+            background: #ff0000;
+        }
+
+        #elements {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            background: rgba(5, 5, 5, 0.95);
+        }
+
+        .element {
+            padding: 12px;
+            margin: 6px 0;
+            background: #1a1a1a;
+            border-radius: 8px;
+            border-left: 4px solid #ff0000;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .element:hover, .element.selected {
+            background: #333;
+            transform: translateX(6px);
+            border-left-color: #ff6666;
+        }
+
+        /* Keyboard Input */
+        #keyboardContainer {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.96);
+            padding: 25px;
+            border: 3px solid #ff0000;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            z-index: 9999;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+        }
+
+        #keyboardTitle {
+            color: #ff0000;
+            margin-bottom: 15px;
+            font-size: 1.6rem;
+            text-shadow: 0 0 10px #ff0000;
+        }
+
+        #keyboardInput {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.3rem;
+            background: #111;
+            color: white;
+            border: 2px solid #ff0000;
+            border-radius: 8px;
+            outline: none;
+            text-align: center;
+        }
+
+        /* Notifications */
+        #notifications {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+        }
+
+        .notification {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff0000;
+            padding: 10px 18px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            max-width: 350px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="menu-container">
+        <div id="header">
+            <span id="logo-text">KOBRA MENU</span>
+        </div>
+        <img id="banner" src="https://jaythaagamer.simdif.com/images/th/sd_6935ae44db1fd.png?no_cache=1765129304" alt="Kobra Banner">
+        <div id="breadcrumb"></div>
+        <div id="categories"></div>
+        <div id="elements"></div>
+    </div>
+
+    <div id="notifications"></div>
+
+    <div id="keyboardContainer">
+        <h2 id="keyboardTitle">Title</h2>
+        <input type="text" id="keyboardInput" readonly>
+    </div>
+
+    <script src="ui.js"></script>
+    <script>
+        let currentIndex = 0;
+        let elements = [];
+
+        function updateSelection() {
+            elements.forEach((el, i) => {
+                el.classList.toggle('selected', i === currentIndex);
+            });
+        }
+
+        window.addEventListener('message', function(event) {
+            const data = event.data;
+
+            // Show/Hide full menu
+            if (data.action === 'showUI') {
+                const container = document.getElementById('menu-container');
+                container.style.display = data.visible ? 'flex' : 'none';
+            }
+
+            // Update elements list with proper spacing for toggles
+            if (data.action === 'updateElements') {
+                const elementsContainer = document.getElementById('elements');
+                elementsContainer.innerHTML = '';
+
+                data.elements.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'element';
+
+                    let labelText = item.label || '';
+
+                    // Add space + On/Off for checkboxes
+                    if (item.type === "checkbox" || item.type === "slider-checkbox" || item.type === "scrollable-checkbox") {
+                        labelText += " " + (item.checked ? "On" : "Off");
+                    }
+                    // Add value for sliders
+                    else if ((item.type === "slider" || item.type === "slider-checkbox") && item.value !== undefined) {
+                        labelText += " " + Number(item.value).toFixed(2);
+                    }
+
+                    div.textContent = labelText;
+
+                    if (index === (data.index || 0)) {
+                        div.classList.add('selected');
+                    }
+
+                    elementsContainer.appendChild(div);
+                });
+
+                elements = Array.from(document.querySelectorAll('.element'));
+                currentIndex = data.index || 0;
+                updateSelection();
+            }
+
+            // Keyboard input
+            if (data.action === 'updateKeyboard') {
+                const container = document.getElementById('keyboardContainer');
+                container.style.display = data.visible ? 'block' : 'none';
+                if (data.visible) {
+                    document.getElementById('keyboardTitle').innerText = data.title || 'Input';
+                    document.getElementById('keyboardInput').value = data.value || '';
+                }
+            }
+
+            // Arrow navigation
+            if (data.action === 'keydown') {
+                if (data.key === 'ArrowUp') {
+                    currentIndex = (currentIndex - 1 + elements.length) % elements.length;
+                    updateSelection();
+                } else if (data.key === 'ArrowDown') {
+                    currentIndex = (currentIndex + 1) % elements.length;
+                    updateSelection();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
