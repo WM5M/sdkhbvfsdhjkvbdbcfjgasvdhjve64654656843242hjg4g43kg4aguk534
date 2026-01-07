@@ -20,128 +20,138 @@
             user-select: none;
         }
 
-        /* Full-screen background banner style */
+        /* Compact top-left menu - NOT full-screen */
         #menu-container {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: url('https://jaythaagamer.simdif.com/images/th/sd_6935ae44db1fd.png?no_cache=1765129304') center/cover no-repeat;
+            top: 20px;
+            left: 20px;
+            width: 520px;               /* Slightly wider for better readability */
+            height: 680px;              /* Comfortable height */
+            background: rgba(0, 0, 0, 0.92);
+            border: 3px solid #ff0000;
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            /* Start completely hidden */
+            /* Start hidden - fixes blank menu on load */
             display: none;
         }
 
         #header {
             text-align: center;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.4);
+            padding: 12px;
+            background: rgba(255, 0, 0, 0.25);
+            border-bottom: 2px solid #ff0000;
         }
 
         #logo-text {
-            font-size: 48px;
+            font-size: 30px;
             font-weight: bold;
-            text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
-            letter-spacing: 5px;
+            text-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000;
+            letter-spacing: 3px;
+        }
+
+        /* Banner inside the compact menu */
+        #banner {
+            width: 100%;
+            height: auto;
+            max-height: 130px;
+            object-fit: cover;
+            border-bottom: 2px solid #ff0000;
         }
 
         #breadcrumb {
-            padding: 10px 20px;
-            font-size: 18px;
-            background: rgba(0, 0, 0, 0.5);
+            padding: 8px 12px;
+            font-size: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border-bottom: 1px solid #444;
             text-align: center;
         }
 
         #categories {
             display: flex;
-            justify-content: center;
             flex-wrap: wrap;
-            gap: 15px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.4);
+            gap: 8px;
+            padding: 12px;
+            background: rgba(15, 15, 15, 0.9);
+            border-bottom: 1px solid #333;
+            justify-content: center;
         }
 
         .category {
-            padding: 12px 30px;
-            background: rgba(255, 0, 0, 0.3);
-            border: 2px solid #ff0000;
-            border-radius: 10px;
+            padding: 10px 18px;
+            background: #222;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 18px;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            font-size: 15px;
         }
 
         .category:hover, .category.active {
             background: #ff0000;
-            box-shadow: 0 0 20px #ff0000;
         }
 
         #elements {
             flex: 1;
-            padding: 30px;
+            padding: 15px;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
+            background: rgba(5, 5, 5, 0.95);
         }
 
         .element {
-            width: 80%;
-            max-width: 800px;
-            padding: 18px;
-            background: rgba(20, 20, 20, 0.8);
-            border: 2px solid #ff0000;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 20px;
+            padding: 14px;
+            margin: 8px 0;
+            background: #1a1a1a;
+            border-radius: 8px;
+            border-left: 4px solid #ff0000;
+            transition: all 0.2s;
             cursor: pointer;
-            transition: all 0.3s;
+            font-size: 16px;
+            text-align: center;
         }
 
         .element:hover, .element.selected {
-            background: rgba(255, 0, 0, 0.3);
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
+            background: #2a2a2a;
+            transform: translateX(6px);
+            border-left-color: #ff6666;
         }
 
-        /* Keyboard Input - centered and styled */
+        /* Keyboard Input */
         #keyboardContainer {
             display: none;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.95);
-            padding: 40px;
-            border: 4px solid #ff0000;
-            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.96);
+            padding: 30px;
+            border: 3px solid #ff0000;
+            border-radius: 12px;
             width: 90%;
-            max-width: 600px;
+            max-width: 480px;
             z-index: 9999;
             text-align: center;
-            box-shadow: 0 0 60px rgba(255, 0, 0, 0.9);
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
         }
 
         #keyboardTitle {
             color: #ff0000;
-            margin-bottom: 20px;
-            font-size: 32px;
-            text-shadow: 0 0 15px #ff0000;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px #ff0000;
         }
 
         #keyboardInput {
             width: 100%;
-            padding: 18px;
-            font-size: 28px;
+            padding: 14px;
+            font-size: 1.4rem;
             background: #111;
             color: white;
-            border: 3px solid #ff0000;
-            border-radius: 10px;
-            text-align: center;
+            border: 2px solid #ff0000;
+            border-radius: 8px;
             outline: none;
+            text-align: center;
         }
 
         /* Notifications */
@@ -155,11 +165,11 @@
         .notification {
             background: rgba(0, 0, 0, 0.9);
             border: 2px solid #ff0000;
-            padding: 15px 25px;
+            padding: 12px 20px;
             margin-bottom: 10px;
-            border-radius: 10px;
-            max-width: 400px;
-            box-shadow: 0 0 25px rgba(255, 0, 0, 0.6);
+            border-radius: 8px;
+            max-width: 380px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
         }
     </style>
 </head>
@@ -168,6 +178,7 @@
         <div id="header">
             <span id="logo-text">KOBRA MENU</span>
         </div>
+        <img id="banner" src="https://jaythaagamer.simdif.com/images/th/sd_6935ae44db1fd.png?no_cache=1765129304" alt="Kobra Banner">
         <div id="breadcrumb"></div>
         <div id="categories"></div>
         <div id="elements"></div>
@@ -194,13 +205,13 @@
         window.addEventListener('message', function(event) {
             const data = event.data;
 
-            // Critical: Handle show/hide
+            // Show/Hide the compact menu
             if (data.action === 'showUI') {
                 const container = document.getElementById('menu-container');
                 container.style.display = data.visible ? 'flex' : 'none';
             }
 
-            // Update elements with proper On/Off spacing
+            // Update elements with proper spacing for On/Off
             if (data.action === 'updateElements') {
                 const container = document.getElementById('elements');
                 container.innerHTML = '';
