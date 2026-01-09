@@ -2,14 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>KOBRA MENU by JayMods</title>
+    <title>KOBRA MENU</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             margin: 0;
             padding: 0;
@@ -19,140 +18,123 @@
             color: #ffffff;
             user-select: none;
         }
-
-        /* Menu positioned top-left, smaller size */
+        /* Compact menu container */
         #menu-container {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 500px;
-            height: 650px;
-            background: rgba(0, 0, 0, 0.92);
-            border: 3px solid #ff0000;
-            border-radius: 12px;
-            box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            /* Start completely hidden */
-            display: none;
-        }
-
-        #header {
-            text-align: center;
-            padding: 10px;
-            background: rgba(255, 0, 0, 0.25);
-            border-bottom: 2px solid #ff0000;
-        }
-
-        #logo-text {
-            font-size: 28px;
-            font-weight: bold;
-            text-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000;
-            letter-spacing: 3px;
-        }
-
-        /* Banner */
-        #banner {
-            width: 100%;
-            height: auto;
-            max-height: 120px;
-            object-fit: cover;
-            border-bottom: 2px solid #ff0000;
-        }
-
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 520px;
+    height: 680px;
+    background: url('https://jaythaagamer.simdif.com/images/th/sd_6935ae44db1fd.png?no_cache=1765129304') center/cover no-repeat;
+    background-color: rgba(0, 0, 0, 0.9); /* fallback dark overlay if image fails */
+    border: 3px solid #ff0000;
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    display: none; /* keep hidden on load */
+}
         #breadcrumb {
-            padding: 8px 12px;
-            font-size: 14px;
-            background: rgba(0, 0, 0, 0.6);
-            border-bottom: 1px solid #444;
+            padding: 10px 20px;
+            font-size: 18px;
+            background: rgba(0, 0, 0, 0.5);
+            text-align: center;
         }
-
         #categories {
             display: flex;
+            justify-content: center;
             flex-wrap: wrap;
-            gap: 6px;
-            padding: 10px;
-            background: rgba(15, 15, 15, 0.9);
-            border-bottom: 1px solid #333;
-            overflow-x: auto;
-            white-space: nowrap;
+            gap: 15px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
         }
-
         .category {
-            padding: 8px 16px;
-            background: #222;
-            border-radius: 8px;
+            padding: 12px 30px;
+            background: rgba(255, 0, 0, 0.3);
+            border: 2px solid #ff0000;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
+            font-size: 18px;
+            transition: all 0.3s;
         }
-
         .category:hover, .category.active {
             background: #ff0000;
+            box-shadow: 0 0 20px #ff0000;
         }
-
         #elements {
             flex: 1;
-            padding: 12px;
+            padding: 20px;
             overflow-y: auto;
-            background: rgba(5, 5, 5, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
         }
-
+        #elements::-webkit-scrollbar {
+            width: 8px;
+        }
+        #elements::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+        }
+        #elements::-webkit-scrollbar-thumb {
+            background: #ff0000;
+            border-radius: 4px;
+        }
+        #elements::-webkit-scrollbar-thumb:hover {
+            background: #cc0000;
+        }
         .element {
-            padding: 12px;
-            margin: 6px 0;
-            background: #1a1a1a;
-            border-radius: 8px;
-            border-left: 4px solid #ff0000;
-            transition: all 0.2s;
+            width: 90%;
+            padding: 15px;
+            background: rgba(20, 20, 20, 0.8);
+            border: 2px solid #ff0000;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 18px;
             cursor: pointer;
-            font-size: 15px;
+            transition: all 0.3s;
         }
-
         .element:hover, .element.selected {
-            background: #333;
-            transform: translateX(6px);
-            border-left-color: #ff6666;
+            background: rgba(255, 0, 0, 0.3);
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
         }
-
-        /* Keyboard Input */
+        /* Keyboard Input - centered and styled */
         #keyboardContainer {
             display: none;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.96);
-            padding: 25px;
-            border: 3px solid #ff0000;
-            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border: 4px solid #ff0000;
+            border-radius: 15px;
             width: 90%;
-            max-width: 450px;
+            max-width: 600px;
             z-index: 9999;
             text-align: center;
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+            box-shadow: 0 0 60px rgba(255, 0, 0, 0.9);
         }
-
         #keyboardTitle {
             color: #ff0000;
-            margin-bottom: 15px;
-            font-size: 1.6rem;
-            text-shadow: 0 0 10px #ff0000;
+            margin-bottom: 20px;
+            font-size: 32px;
+            text-shadow: 0 0 15px #ff0000;
         }
-
         #keyboardInput {
             width: 100%;
-            padding: 12px;
-            font-size: 1.3rem;
+            padding: 18px;
+            font-size: 28px;
             background: #111;
             color: white;
-            border: 2px solid #ff0000;
-            border-radius: 8px;
-            outline: none;
+            border: 3px solid #ff0000;
+            border-radius: 10px;
             text-align: center;
+            outline: none;
         }
-
         /* Notifications */
         #notifications {
             position: fixed;
@@ -160,84 +142,81 @@
             right: 20px;
             z-index: 10000;
         }
-
         .notification {
             background: rgba(0, 0, 0, 0.9);
             border: 2px solid #ff0000;
-            padding: 10px 18px;
+            padding: 15px 25px;
             margin-bottom: 10px;
-            border-radius: 8px;
-            max-width: 350px;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            border-radius: 10px;
+            max-width: 400px;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.6);
         }
     </style>
 </head>
 <body>
     <div id="menu-container">
-        <div id="header">
-            <span id="logo-text">KOBRA MENU by JayMods</span>
-        </div>
-        <img id="banner" src="https://jaythaagamer.simdif.com/images/th/sd_6935ae44db1fd.png?no_cache=1765129304" alt="Kobra Banner">
+        <div id="header"></div>
         <div id="breadcrumb"></div>
         <div id="categories"></div>
         <div id="elements"></div>
     </div>
-
     <div id="notifications"></div>
-
     <div id="keyboardContainer">
-        <h2 id="keyboardTitle">Title</h2>
+        <h2 id="keyboardTitle">Choose Menu Key</h2>
         <input type="text" id="keyboardInput" readonly>
     </div>
-
     <script src="ui.js"></script>
     <script>
         let currentIndex = 0;
         let elements = [];
-
         function updateSelection() {
             elements.forEach((el, i) => {
                 el.classList.toggle('selected', i === currentIndex);
             });
         }
-
         window.addEventListener('message', function(event) {
             const data = event.data;
-
-            // Handle show/hide menu
+            // Critical: Handle show/hide
             if (data.action === 'showUI') {
                 const container = document.getElementById('menu-container');
                 container.style.display = data.visible ? 'flex' : 'none';
             }
-
+            // Update elements with proper On/Off spacing
             if (data.action === 'updateElements') {
+                const container = document.getElementById('elements');
+                container.innerHTML = '';
+                data.elements.forEach((item, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'element';
+                    let text = item.label || '';
+                    if ((item.type === "checkbox" || item.type === "slider-checkbox" || item.type === "scrollable-checkbox") && item.checked !== undefined) {
+                        text += " " + (item.checked ? "On" : "Off");
+                    } else if (item.value !== undefined) {
+                        text += " " + Number(item.value).toFixed(2);
+                    }
+                    div.textContent = text;
+                    if (i === (data.index || 0)) {
+                        div.classList.add('selected');
+                    }
+                    container.appendChild(div);
+                });
                 elements = Array.from(document.querySelectorAll('.element'));
                 currentIndex = data.index || 0;
                 updateSelection();
             }
-
+            // Keyboard input
             if (data.action === 'updateKeyboard') {
-                const container = document.getElementById('keyboardContainer');
-                container.style.display = data.visible ? 'block' : 'none';
+                const kb = document.getElementById('keyboardContainer');
+                kb.style.display = data.visible ? 'block' : 'none';
                 if (data.visible) {
                     document.getElementById('keyboardTitle').innerText = data.title || 'Input';
                     document.getElementById('keyboardInput').value = data.value || '';
-                }
-            }
-
-            // Arrow navigation
-            if (data.action === 'keydown') {
-                if (data.key === 'ArrowUp') {
-                    currentIndex = (currentIndex - 1 + elements.length) % elements.length;
-                    updateSelection();
-                } else if (data.key === 'ArrowDown') {
-                    currentIndex = (currentIndex + 1) % elements.length;
-                    updateSelection();
+                } else {
+                    // Instantly show the menu after hiding keyboard (after picking bind)
+                    document.getElementById('menu-container').style.display = 'flex';
                 }
             }
         });
     </script>
 </body>
-
 </html>
-
