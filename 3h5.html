@@ -16,6 +16,7 @@ body {
     overflow: hidden;
     font-family: Arial, sans-serif;
     color: white;
+    user-select: none;
 }
 
 #menu-container {
@@ -61,33 +62,31 @@ body {
     border-radius: 10px;
     text-align: center;
     font-size: 18px;
-    transition: 0.12s;
-    cursor: pointer;
-}
-
-.element:hover {
-    background: rgba(255,0,0,.25);
+    transition: 0.15s;
 }
 
 .element.selected {
     background: rgba(255,0,0,.45);
     border-color: #ff5555;
-    box-shadow: 0 0 25px red;
+    box-shadow: 0 0 30px red;
     transform: scale(1.05);
 }
 
+/* Scrollbar */
 #elements::-webkit-scrollbar {
     width: 8px;
 }
 #elements::-webkit-scrollbar-thumb {
     background: red;
+    border-radius: 4px;
 }
 
+/* Keyboard popup */
 #keyboardContainer {
+    display: none;
     position: absolute;
     inset: 0;
     background: rgba(0,0,0,.95);
-    display: none;
     z-index: 9999;
     border: 4px solid red;
     box-shadow: 0 0 80px red;
@@ -130,31 +129,13 @@ body {
 let currentIndex = 0;
 let elements = [];
 
-function clampIndex() {
-    if (currentIndex < 0) currentIndex = 0;
-    if (currentIndex >= elements.length) currentIndex = elements.length - 1;
-}
-
-function updateSelection(force = false) {
-    if (!elements.length) return;
-
-    clampIndex();
-
+function updateSelection() {
     elements.forEach((el, i) => {
         el.classList.toggle("selected", i === currentIndex);
     });
-
-    // FORCE repaint when menu is rebuilt
-    if (force) {
-        requestAnimationFrame(() => {
-            elements[currentIndex].scrollIntoView({ block: "nearest" });
-        });
-    } else {
-        elements[currentIndex].scrollIntoView({ block: "nearest" });
-    }
 }
 
-window.addEventListener("message", e => {
+window.addEventListener("message", function(e) {
     const data = e.data;
 
     if (data.action === "showUI") {
@@ -167,39 +148,24 @@ window.addEventListener("message", e => {
         container.innerHTML = "";
 
         data.elements.forEach((item, i) => {
-            const el = document.createElement("div");
-            el.className = "element";
+            const div = document.createElement("div");
+            div.className = "element";
 
             let text = item.label || "";
+
             if (item.checked !== undefined) {
-                text += item.checked ? "  ON" : "  OFF";
+                text += item.checked ? " On" : " Off";
             } else if (item.value !== undefined) {
                 text += " " + Number(item.value).toFixed(2);
             }
 
-            el.textContent = text;
-
-            /* 🔹 MOUSE HOVER SYNC */
-            el.addEventListener("mouseenter", () => {
-                currentIndex = i;
-                updateSelection();
-            });
-
-            /* 🔹 MOUSE CLICK */
-            el.addEventListener("click", () => {
-                fetch(`https://${GetParentResourceName()}/select`, {
-                    method: "POST",
-                    body: JSON.stringify({ index: i })
-                });
-            });
-
-            container.appendChild(el);
+            div.textContent = text;
+            container.appendChild(div);
         });
 
-        elements = [...container.children];
-        currentIndex = data.index ?? 0;
-
-        updateSelection(true); // 🔥 FORCE FIX
+        elements = Array.from(container.children);
+        currentIndex = data.index || 0;
+        updateSelection();
     }
 
     if (data.action === "keydown") {
