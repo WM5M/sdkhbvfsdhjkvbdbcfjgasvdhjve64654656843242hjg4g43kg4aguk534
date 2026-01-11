@@ -217,17 +217,15 @@
             }
 
             // Keyboard input
-            if (data.action === 'updateKeyboard') {
-                const kb = document.getElementById('keyboardContainer');
-                kb.style.display = data.visible ? 'block' : 'none';
-                if (data.visible) {
-                    document.getElementById('keyboardTitle').innerText = data.title || 'Input';
-                    document.getElementById('keyboardInput').value = data.value || '';
-                } else {
-                    // Instantly show the menu after hiding keyboard (after picking bind)
-                    document.getElementById('menu-container').style.display = 'flex';
-                }
-            }
+if (data.action === 'updateKeyboard') {
+    const kb = document.getElementById('keyboardContainer');
+    kb.style.display = data.visible ? 'block' : 'none';
+    if (data.visible) {
+        document.getElementById('keyboardTitle').innerText = data.title || 'Choose Menu Key';
+        document.getElementById('keyboardInput').value = data.value || '';
+        kb.focus(); // Optional: focus the input for better UX
+    }
+}
 
             // Arrow navigation support (from Lua keydown messages)
             if (data.action === 'keydown') {
