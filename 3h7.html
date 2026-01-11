@@ -1,165 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>KOBRA MENU</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background: transparent;
-            font-family: 'Arial', sans-serif;
-            color: #ffffff;
-            user-select: none;
-        }
-        #menu-container {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 520px;
-            height: 680px;
-            background: url('https://jaythaagamer.simdif.com/images/public/sd_696292dfc3164.png?no_cache=1768071413') center/cover no-repeat;
-            background-color: rgba(0, 0, 0, 0.9);
-            border: 3px solid #ff0000;
-            border-radius: 12px;
-            box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
-            overflow: hidden;
-            display: none;
-            flex-direction: column;
-        }
-        #breadcrumb {
-            padding: 10px 20px;
-            font-size: 18px;
-            background: rgba(0, 0, 0, 0.5);
-            text-align: center;
-        }
-        #categories {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.4);
-        }
-        .category {
-            padding: 12px 30px;
-            background: rgba(255, 0, 0, 0.3);
-            border: 2px solid #ff0000;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 18px;
-            transition: all 0.3s;
-        }
-        .category:hover, .category.active {
-            background: #ff0000;
-            box-shadow: 0 0 20px #ff0000;
-        }
-        #elements {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-        #elements::-webkit-scrollbar {
-            width: 8px;
-        }
-        #elements::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 4px;
-        }
-        #elements::-webkit-scrollbar-thumb {
-            background: #ff0000;
-            border-radius: 4px;
-        }
-        #elements::-webkit-scrollbar-thumb:hover {
-            background: #cc0000;
-        }
-        .element {
-            width: 90%;
-            padding: 15px;
-            background: rgba(20, 20, 20, 0.8);
-            border: 2px solid #ff0000;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .element:hover, .element.selected {
-            background: rgba(255, 0, 0, 0.3);
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
-        }
-#keyboardContainer {
-    display: none !important;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.96);
-    padding: 40px;
-    border: 4px solid #ff0000;
-    border-radius: 15px;
-    width: 90%;
-    max-width: 600px;
-    z-index: 9999;
-    text-align: center;
-    box-shadow: 0 0 60px rgba(255, 0, 0, 0.9);
+<meta charset="UTF-8">
+<title>KOBRA MENU</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-        #keyboardTitle {
-            color: #ff0000;
-            margin-bottom: 20px;
-            font-size: 32px;
-            text-shadow: 0 0 15px #ff0000;
-        }
-        #keyboardInput {
-            width: 100%;
-            padding: 18px;
-            font-size: 28px;
-            background: #111;
-            color: white;
-            border: 3px solid #ff0000;
-            border-radius: 10px;
-            text-align: center;
-            outline: none;
-        }
-    </style>
+
+body {
+    background: transparent;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    color: white;
+    user-select: none;
+}
+
+#menu-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 520px;
+    height: 680px;
+    background: rgba(0,0,0,0.92)
+        url('https://jaythaagamer.simdif.com/images/public/sd_696292dfc3164.png?no_cache=1768071413')
+        center/cover no-repeat;
+    border: 3px solid red;
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(255,0,0,.7);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#breadcrumb {
+    padding: 10px;
+    text-align: center;
+    font-size: 18px;
+    background: rgba(0,0,0,.6);
+}
+
+#elements {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.element {
+    width: 90%;
+    padding: 15px;
+    background: rgba(20,20,20,.85);
+    border: 2px solid red;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 18px;
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+/* ✅ NO SCALE — THIS FIXES SKIPPING */
+.element.selected {
+    background: rgba(255,0,0,.35);
+    box-shadow: 0 0 25px rgba(255,0,0,.8);
+}
+
+/* Scrollbar */
+#elements::-webkit-scrollbar {
+    width: 8px;
+}
+#elements::-webkit-scrollbar-thumb {
+    background: red;
+    border-radius: 4px;
+}
+
+/* Keyboard popup */
+#keyboardContainer {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.95);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border: 4px solid red;
+}
+</style>
 </head>
 
 <body>
-    <div id="menu-container">
-        <div id="header"></div>
-        <div id="breadcrumb"></div>
-        <div id="categories"></div>
-        <div id="elements"></div>
-    </div>
 
-    <div id="keyboardContainer">
-        <h2 id="keyboardTitle">Choose Menu Key</h2>
-        <input type="text" id="keyboardInput" readonly>
-    </div>
+<div id="menu-container">
+    <div id="breadcrumb">Kobra Menu</div>
+    <div id="elements"></div>
+</div>
+
+<div id="keyboardContainer">
+    <h2>Choose Menu Key</h2>
+    <input id="keyboardInput" readonly>
+</div>
 
 <script>
 let currentIndex = 0;
 let elements = [];
 
 function updateSelection() {
+    if (!elements.length) return;
+
     elements.forEach((el, i) => {
         el.classList.toggle('selected', i === currentIndex);
     });
+
+    // ✅ SAFE SCROLL (no smooth, no math)
+    elements[currentIndex].scrollIntoView({ block: 'nearest' });
 }
 
-window.addEventListener('message', function(event) {
-    const data = event.data;
+window.addEventListener('message', e => {
+    const data = e.data;
 
     if (data.action === 'showUI') {
         document.getElementById('menu-container').style.display =
@@ -170,9 +133,9 @@ window.addEventListener('message', function(event) {
         const container = document.getElementById('elements');
         container.innerHTML = '';
 
-        data.elements.forEach((item, i) => {
-            const div = document.createElement('div');
-            div.className = 'element';
+        data.elements.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'element';
 
             let text = item.label || '';
             if (item.checked !== undefined) {
@@ -181,13 +144,15 @@ window.addEventListener('message', function(event) {
                 text += ' ' + Number(item.value).toFixed(2);
             }
 
-            div.textContent = text;
-            container.appendChild(div);
+            el.textContent = text;
+            container.appendChild(el);
         });
 
-        elements = Array.from(document.querySelectorAll('.element'));
+        elements = Array.from(container.children);
         currentIndex = data.index || 0;
-        updateSelection();
+
+        // ✅ DELAY FIRST SELECTION → fixes blank open
+        requestAnimationFrame(updateSelection);
     }
 
     if (data.action === 'keydown') {
@@ -196,32 +161,20 @@ window.addEventListener('message', function(event) {
         if (data.key === 'ArrowUp') {
             currentIndex = (currentIndex - 1 + elements.length) % elements.length;
             updateSelection();
-        } else if (data.key === 'ArrowDown') {
+        }
+
+        if (data.key === 'ArrowDown') {
             currentIndex = (currentIndex + 1) % elements.length;
             updateSelection();
         }
     }
-
-    if (data.action === 'updateKeyboard') {
-        const kb = document.getElementById('keyboardContainer');
-        kb.style.display = data.visible ? 'block' : 'none';
-        document.getElementById('keyboardInput').value = data.value || '';
-    }
 });
 
-/* 🔥 BROWSER KEYBOARD FALLBACK (FIX) */
-document.addEventListener('keydown', function(e) {
+/* Browser fallback */
+document.addEventListener('keydown', e => {
     if (!elements.length) return;
 
-    if (e.key === 'ArrowUp') {
-        currentIndex = (currentIndex - 1 + elements.length) % elements.length;
-        updateSelection();
-        e.preventDefault();
-    }
-
-    if (e.key === 'ArrowDown') {
-        currentIndex = (currentIndex + 1) % elements.length;
-        updateSelection();
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         e.preventDefault();
     }
 });
