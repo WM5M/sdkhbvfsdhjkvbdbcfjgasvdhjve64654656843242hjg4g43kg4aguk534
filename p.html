@@ -180,6 +180,21 @@
         window.addEventListener('message', function(event) {
             const data = event.data;
 
+            // Add this inside <script> (after window.addEventListener if needed)
+document.addEventListener('keydown', function(e) {
+    const kb = document.getElementById('keyboardContainer');
+    if (kb.style.display === 'block' && e.key === 'Enter') {
+        const value = document.getElementById('keyboardInput').value.trim();
+        // Send back to Lua (adjust if your executor uses different send method)
+        // For most MachoMenu setups, use postMessage or MachoSendDuiMessage
+        MachoSendDuiMessage(parent, json.encode({
+            action: "keyConfirmed",
+            value: value
+        }));
+        e.preventDefault();
+    }
+});
+
             // Show/Hide menu
             if (data.action === 'showUI') {
                 const container = document.getElementById('menu-container');
