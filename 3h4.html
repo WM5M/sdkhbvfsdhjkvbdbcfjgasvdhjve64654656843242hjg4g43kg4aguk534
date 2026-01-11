@@ -18,18 +18,18 @@ body {
     color: white;
 }
 
-/* MAIN CONTAINER */
 #menu-container {
     position: absolute;
     top: 20px;
     left: 20px;
     width: 520px;
     height: 680px;
-    background: url('https://jaythaagamer.simdif.com/images/public/sd_696292dfc3164.png?no_cache=1768071413') center/cover no-repeat;
-    background-color: rgba(0,0,0,0.92);
-    border: 3px solid #ff0000;
+    background: rgba(0,0,0,0.92)
+        url('https://jaythaagamer.simdif.com/images/public/sd_696292dfc3164.png?no_cache=1768071413')
+        center/cover no-repeat;
+    border: 3px solid red;
     border-radius: 12px;
-    box-shadow: 0 0 40px rgba(255,0,0,0.7);
+    box-shadow: 0 0 40px rgba(255,0,0,.7);
     display: none;
     flex-direction: column;
     overflow: hidden;
@@ -37,9 +37,9 @@ body {
 
 #breadcrumb {
     padding: 10px;
-    background: rgba(0,0,0,0.6);
     text-align: center;
     font-size: 18px;
+    background: rgba(0,0,0,.6);
     border-bottom: 2px solid red;
 }
 
@@ -56,65 +56,60 @@ body {
 .element {
     width: 92%;
     padding: 14px;
-    background: rgba(15,15,15,0.9);
+    background: rgba(15,15,15,.9);
     border: 2px solid red;
     border-radius: 10px;
     text-align: center;
     font-size: 18px;
-    transition: 0.15s;
+    transition: 0.12s;
+    cursor: pointer;
 }
 
-/* MOUSE HOVER */
 .element:hover {
-    background: rgba(255,0,0,0.25);
+    background: rgba(255,0,0,.25);
 }
 
-/* KEYBOARD SELECTED */
 .element.selected {
-    background: rgba(255,0,0,0.45) !important;
+    background: rgba(255,0,0,.45);
     border-color: #ff5555;
-    box-shadow: 0 0 35px rgba(255,0,0,1);
-    transform: scale(1.06);
+    box-shadow: 0 0 25px red;
+    transform: scale(1.05);
 }
 
-/* SCROLLBAR */
 #elements::-webkit-scrollbar {
     width: 8px;
 }
 #elements::-webkit-scrollbar-thumb {
     background: red;
-    border-radius: 4px;
 }
 
-/* KEY PICKER */
 #keyboardContainer {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.95);
-    z-index: 9999;
+    background: rgba(0,0,0,.95);
     display: none;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    z-index: 9999;
     border: 4px solid red;
     box-shadow: 0 0 80px red;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
 
 #keyboardTitle {
     font-size: 32px;
-    margin-bottom: 20px;
     color: red;
-    text-shadow: 0 0 20px red;
+    margin-bottom: 20px;
 }
 
 #keyboardInput {
     width: 80%;
-    font-size: 28px;
     padding: 15px;
-    text-align: center;
+    font-size: 28px;
     background: black;
     border: 3px solid red;
     color: white;
+    text-align: center;
 }
 </style>
 </head>
@@ -135,19 +130,31 @@ body {
 let currentIndex = 0;
 let elements = [];
 
-function updateSelection() {
+function clampIndex() {
+    if (currentIndex < 0) currentIndex = 0;
+    if (currentIndex >= elements.length) currentIndex = elements.length - 1;
+}
+
+function updateSelection(force = false) {
     if (!elements.length) return;
+
+    clampIndex();
 
     elements.forEach((el, i) => {
         el.classList.toggle("selected", i === currentIndex);
     });
 
-    elements[currentIndex].scrollIntoView({
-        block: "nearest"
-    });
+    // FORCE repaint when menu is rebuilt
+    if (force) {
+        requestAnimationFrame(() => {
+            elements[currentIndex].scrollIntoView({ block: "nearest" });
+        });
+    } else {
+        elements[currentIndex].scrollIntoView({ block: "nearest" });
+    }
 }
 
-window.addEventListener("message", function(e) {
+window.addEventListener("message", e => {
     const data = e.data;
 
     if (data.action === "showUI") {
@@ -159,26 +166,40 @@ window.addEventListener("message", function(e) {
         const container = document.getElementById("elements");
         container.innerHTML = "";
 
-        data.elements.forEach(item => {
-            const div = document.createElement("div");
-            div.className = "element";
+        data.elements.forEach((item, i) => {
+            const el = document.createElement("div");
+            el.className = "element";
 
-            let txt = item.label || "";
-
+            let text = item.label || "";
             if (item.checked !== undefined) {
-                txt += item.checked ? "  ON" : "  OFF";
+                text += item.checked ? "  ON" : "  OFF";
             } else if (item.value !== undefined) {
-                txt += " " + Number(item.value).toFixed(2);
+                text += " " + Number(item.value).toFixed(2);
             }
 
-            div.textContent = txt;
-            container.appendChild(div);
+            el.textContent = text;
+
+            /* 🔹 MOUSE HOVER SYNC */
+            el.addEventListener("mouseenter", () => {
+                currentIndex = i;
+                updateSelection();
+            });
+
+            /* 🔹 MOUSE CLICK */
+            el.addEventListener("click", () => {
+                fetch(`https://${GetParentResourceName()}/select`, {
+                    method: "POST",
+                    body: JSON.stringify({ index: i })
+                });
+            });
+
+            container.appendChild(el);
         });
 
-        elements = Array.from(container.children);
+        elements = [...container.children];
+        currentIndex = data.index ?? 0;
 
-        currentIndex = data.index !== undefined ? data.index : 0;
-        updateSelection();
+        updateSelection(true); // 🔥 FORCE FIX
     }
 
     if (data.action === "keydown") {
