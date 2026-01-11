@@ -101,7 +101,7 @@
             box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
         }
         #keyboardContainer {
-            display: none !important;
+            display: none;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -221,15 +221,20 @@
                 }
             }
 
-            if (data.action === 'keydown') {
-                if (data.key === 'ArrowUp') {
-                    currentIndex = (currentIndex - 1 + elements.length) % elements.length;
-                    updateSelection();
-                } else if (data.key === 'ArrowDown') {
-                    currentIndex = (currentIndex + 1) % elements.length;
-                    updateSelection();
-                }
-            }
+            if (data.action === 'keydown' && elements.length > 0) {
+    if (data.key === 'ArrowUp') {
+        currentIndex--;
+        if (currentIndex < 0) currentIndex = elements.length - 1;
+        updateSelection();
+    }
+
+    if (data.key === 'ArrowDown') {
+        currentIndex++;
+        if (currentIndex >= elements.length) currentIndex = 0;
+        updateSelection();
+    }
+}
+
         });
     </script>
 </body>
