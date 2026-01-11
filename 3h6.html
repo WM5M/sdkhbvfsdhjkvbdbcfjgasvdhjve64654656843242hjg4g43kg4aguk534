@@ -62,13 +62,13 @@ body {
     border-radius: 10px;
     text-align: center;
     font-size: 18px;
-    transition: 0.15s;
+    transition: 0.12s;
 }
 
 .element.selected {
     background: rgba(255,0,0,.45);
     border-color: #ff5555;
-    box-shadow: 0 0 30px red;
+    box-shadow: 0 0 25px red;
     transform: scale(1.05);
 }
 
@@ -129,10 +129,30 @@ body {
 let currentIndex = 0;
 let elements = [];
 
+function ensureVisible() {
+    const container = document.getElementById("elements");
+    const item = elements[currentIndex];
+    if (!item) return;
+
+    const itemTop = item.offsetTop;
+    const itemBottom = itemTop + item.offsetHeight;
+
+    const viewTop = container.scrollTop;
+    const viewBottom = viewTop + container.clientHeight;
+
+    if (itemTop < viewTop) {
+        container.scrollTop = itemTop;
+    } else if (itemBottom > viewBottom) {
+        container.scrollTop = itemBottom - container.clientHeight;
+    }
+}
+
 function updateSelection() {
     elements.forEach((el, i) => {
         el.classList.toggle("selected", i === currentIndex);
     });
+
+    ensureVisible();
 }
 
 window.addEventListener("message", function(e) {
@@ -147,12 +167,11 @@ window.addEventListener("message", function(e) {
         const container = document.getElementById("elements");
         container.innerHTML = "";
 
-        data.elements.forEach((item, i) => {
+        data.elements.forEach(item => {
             const div = document.createElement("div");
             div.className = "element";
 
             let text = item.label || "";
-
             if (item.checked !== undefined) {
                 text += item.checked ? " On" : " Off";
             } else if (item.value !== undefined) {
