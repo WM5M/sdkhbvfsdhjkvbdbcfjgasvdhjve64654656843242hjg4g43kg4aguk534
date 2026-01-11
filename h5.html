@@ -13,6 +13,19 @@ body {
     color: white;
 }
 
+#menu-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 520px;
+    height: 680px;
+    background: rgba(0,0,0,0.9);
+    border: 3px solid red;
+    border-radius: 12px;
+    box-shadow: 0 0 40px red;
+    display: none;
+}
+
 #keyboardContainer {
     display: none;
     position: fixed;
@@ -52,6 +65,10 @@ body {
 
 <body>
 
+<div id="menu-container">
+    <h2 style="padding:10px;">KOBRA MENU</h2>
+</div>
+
 <div id="keyboardContainer">
     <div id="keyboardModal">
         <div id="keyboardTitle">Press a Key</div>
@@ -62,6 +79,11 @@ body {
 <script>
 window.addEventListener("message", (event) => {
     const data = event.data;
+
+    if (data.action === "showUI") {
+        document.getElementById("menu-container").style.display =
+            data.visible ? "block" : "none";
+    }
 
     if (data.action === "updateKeyboard") {
         const box = document.getElementById("keyboardContainer");
