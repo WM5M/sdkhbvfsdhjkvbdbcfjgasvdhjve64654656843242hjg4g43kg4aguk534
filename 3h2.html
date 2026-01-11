@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KOBRA MENU</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: transparent;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    color: white;
+}
+
+/* MAIN CONTAINER */
+#menu-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 520px;
+    height: 680px;
+    background: url('https://jaythaagamer.simdif.com/images/public/sd_696292dfc3164.png?no_cache=1768071413') center/cover no-repeat;
+    background-color: rgba(0,0,0,0.92);
+    border: 3px solid #ff0000;
+    border-radius: 12px;
+    box-shadow: 0 0 40px rgba(255,0,0,0.7);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#breadcrumb {
+    padding: 10px;
+    background: rgba(0,0,0,0.6);
+    text-align: center;
+    font-size: 18px;
+    border-bottom: 2px solid red;
+}
+
+#elements {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.element {
+    width: 92%;
+    padding: 14px;
+    background: rgba(15,15,15,0.9);
+    border: 2px solid red;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 18px;
+    transition: 0.15s;
+}
+
+/* MOUSE HOVER */
+.element:hover {
+    background: rgba(255,0,0,0.25);
+}
+
+/* KEYBOARD SELECTED */
+.element.selected {
+    background: rgba(255,0,0,0.45) !important;
+    border-color: #ff5555;
+    box-shadow: 0 0 35px rgba(255,0,0,1);
+    transform: scale(1.06);
+}
+
+/* SCROLLBAR */
+#elements::-webkit-scrollbar {
+    width: 8px;
+}
+#elements::-webkit-scrollbar-thumb {
+    background: red;
+    border-radius: 4px;
+}
+
+/* KEY PICKER */
+#keyboardContainer {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 4px solid red;
+    box-shadow: 0 0 80px red;
+}
+
+#keyboardTitle {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: red;
+    text-shadow: 0 0 20px red;
+}
+
+#keyboardInput {
+    width: 80%;
+    font-size: 28px;
+    padding: 15px;
+    text-align: center;
+    background: black;
+    border: 3px solid red;
+    color: white;
+}
+</style>
+</head>
+
+<body>
+
+<div id="menu-container">
+    <div id="breadcrumb">Kobra Menu</div>
+    <div id="elements"></div>
+</div>
+
+<div id="keyboardContainer">
+    <div id="keyboardTitle">Choose Menu Key</div>
+    <input id="keyboardInput" readonly>
+</div>
+
+<script>
+let currentIndex = 0;
+let elements = [];
+
+function updateSelection() {
+    elements.forEach((el, i) => {
+        el.classList.toggle("selected", i === currentIndex);
+        if (i === currentIndex) {
+            el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+    });
+}
+
+window.addEventListener("message", function(e) {
+    const data = e.data;
+
+    if (data.action === "showUI") {
+        document.getElementById("menu-container").style.display = data.visible ? "flex" : "none";
+    }
+
+    if (data.action === "updateElements") {
+        const container = document.getElementById("elements");
+        container.innerHTML = "";
+
+        data.elements.forEach((item, i) => {
+            const div = document.createElement("div");
+            div.className = "element";
+
+            let txt = item.label || "";
+            if (item.checked !== undefined) {
+                txt += item.checked ? "  ON" : "  OFF";
+            } else if (item.value !== undefined) {
+                txt += " " + Number(item.value).toFixed(2);
+            }
+
+            div.textContent = txt;
+            container.appendChild(div);
+        });
+
+        elements = Array.from(document.querySelectorAll(".element"));
+
+        if (data.index !== undefined) {
+            currentIndex = data.index;
+        }
+
+        updateSelection();
+    }
+
+    if (data.action === "keydown") {
+        if (data.key === "ArrowUp") {
+            currentIndex--;
+            if (currentIndex < 0) currentIndex = elements.length - 1;
+            updateSelection();
+        }
+
+        if (data.key === "ArrowDown") {
+            currentIndex++;
+            if (currentIndex >= elements.length) currentIndex = 0;
+            updateSelection();
+        }
+    }
+
+    if (data.action === "updateKeyboard") {
+        const kb = document.getElementById("keyboardContainer");
+        kb.style.display = data.visible ? "flex" : "none";
+        document.getElementById("keyboardInput").value = data.value || "";
+    }
+});
+</script>
+
+</body>
+</html>
