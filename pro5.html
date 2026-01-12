@@ -18,7 +18,6 @@
             color: #ffffff;
             user-select: none;
         }
-        /* Compact top-left menu - NOT full-screen */
         #menu-container {
             position: absolute;
             top: 20px;
@@ -33,7 +32,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            display: none; /* Menu starts hidden */
+            display: none;
         }
         #breadcrumb {
             padding: 10px 20px;
@@ -101,9 +100,8 @@
             transform: scale(1.05);
             box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
         }
-        /* Keyboard Input - TEMPORARILY forced visible for debugging */
         #keyboardContainer {
-            display: block !important; /* CHANGE BACK to 'none !important' AFTER TESTING */
+            display: none;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -135,7 +133,6 @@
             text-align: center;
             outline: none;
         }
-        /* Notifications */
         #notifications {
             position: fixed;
             top: 20px;
@@ -168,7 +165,7 @@
 
     <script src="ui.js"></script>
     <script>
-        console.log("[KOBRA DEBUG] DUI HTML loaded successfully - waiting for messages...");
+        console.log("[KOBRA DEBUG] HTML loaded - waiting for Lua messages...");
 
         let currentIndex = 0;
         let elements = [];
@@ -184,13 +181,13 @@
             console.log("[KOBRA DEBUG] Received message:", data);
 
             if (data.action === 'showUI') {
-                console.log("[KOBRA DEBUG] showUI action - visible:", data.visible);
+                console.log("[KOBRA DEBUG] showUI - visible:", data.visible);
                 const container = document.getElementById('menu-container');
                 container.style.display = data.visible ? 'flex' : 'none';
             }
 
             if (data.action === 'updateElements') {
-                console.log("[KOBRA DEBUG] Updating elements - count:", data.elements.length);
+                console.log("[KOBRA DEBUG] updateElements - count:", data.elements ? data.elements.length : 0);
                 const container = document.getElementById('elements');
                 container.innerHTML = '';
 
@@ -220,21 +217,21 @@
             }
 
             if (data.action === 'updateKeyboard') {
-                console.log("[KOBRA DEBUG] updateKeyboard action - visible:", data.visible);
+                console.log("[KOBRA DEBUG] updateKeyboard - visible:", data.visible);
                 const kb = document.getElementById('keyboardContainer');
                 kb.style.display = data.visible ? 'block' : 'none';
                 if (data.visible) {
                     document.getElementById('keyboardTitle').innerText = data.title || 'Choose Menu Key';
                     document.getElementById('keyboardInput').value = data.value || '';
                     kb.focus();
-                    console.log("[KOBRA DEBUG] Keyboard prompt shown");
+                    console.log("[KOBRA DEBUG] Prompt shown");
                 } else {
-                    console.log("[KOBRA DEBUG] Keyboard prompt hidden");
+                    console.log("[KOBRA DEBUG] Prompt hidden");
                 }
             }
 
             if (data.action === 'keydown') {
-                console.log("[KOBRA DEBUG] keydown action - key:", data.key);
+                console.log("[KOBRA DEBUG] keydown - key:", data.key);
                 if (data.key === 'ArrowUp') {
                     currentIndex = (currentIndex - 1 + elements.length) % elements.length;
                     updateSelection();
@@ -242,6 +239,16 @@
                     currentIndex = (currentIndex + 1) % elements.length;
                     updateSelection();
                 }
+            }
+        });
+
+        // Auto-hide prompt on Enter (fallback if Lua hide message fails)
+        document.addEventListener('keydown', function(e) {
+            const kb = document.getElementById('keyboardContainer');
+            if (kb.style.display === 'block' && e.key === 'Enter') {
+                console.log("[KOBRA DEBUG] Enter pressed in prompt - hiding locally");
+                kb.style.display = 'none';
+                e.preventDefault();
             }
         });
     </script>
