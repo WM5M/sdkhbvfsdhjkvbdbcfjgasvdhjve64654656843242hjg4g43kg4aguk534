@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KOBRA MENU</title>
+<style>
+/* ===== RESET ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    overflow:hidden;
+    background:transparent;
+    font-family:Arial,sans-serif;
+    color:#fff;
+    user-select:none;
+}
+
+/* ===== MENU ===== */
+#menu-container{
+    position:absolute;
+    top:20px;
+    left:20px;
+    width:520px;
+    height:800px;
+    background:url('https://jaythaagamer.simdif.com/images/public/sd_696292dfc3164.png?no_cache=1768071413') center/cover no-repeat;
+    border:3px solid #ff0000;
+    border-radius:12px;
+    box-shadow:0 0 40px rgba(255,0,0,.6);
+    display:none;
+    flex-direction:column;
+    overflow:hidden;
+}
+
+#header{
+    height:120px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+#logo-text{
+    font-size:48px;
+    font-weight:bold;
+    text-shadow:0 0 20px #ff0000;
+    letter-spacing:6px;
+}
+
+#breadcrumb{
+    padding:10px;
+    text-align:center;
+    background:rgba(0,0,0,.5);
+}
+
+#categories{
+    display:none;
+    justify-content:center;
+    gap:15px;
+    padding:15px;
+}
+
+.category{
+    padding:12px 30px;
+    border:2px solid #ff0000;
+    border-radius:10px;
+    cursor:pointer;
+}
+.category.active,.category:hover{
+    background:#ff0000;
+    box-shadow:0 0 20px #ff0000;
+}
+
+#elements{
+    flex:1;
+    padding:20px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:12px;
+}
+#elements::-webkit-scrollbar{width:8px}
+#elements::-webkit-scrollbar-thumb{background:#ff0000;border-radius:4px}
+
+.element{
+    width:90%;
+    padding:15px;
+    border:2px solid #ff0000;
+    border-radius:12px;
+    text-align:center;
+    cursor:pointer;
+}
+.element.selected,.element:hover{
+    background:rgba(255,0,0,.3);
+    box-shadow:0 0 30px rgba(255,0,0,.7);
+}
+
+/* ===== KEYBIND POPUP ===== */
+#keyboardContainer{
+    display:none;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:rgba(0,0,0,.95);
+    padding:40px;
+    border:4px solid #ff0000;
+    border-radius:15px;
+    z-index:9999;
+    text-align:center;
+}
+#keyboardTitle{
+    font-size:32px;
+    color:#ff0000;
+    margin-bottom:20px;
+}
+#keyboardInput{
+    width:100%;
+    padding:18px;
+    font-size:28px;
+    background:#111;
+    border:3px solid #ff0000;
+    color:white;
+    text-align:center;
+}
+
+/* ===== NOTIFICATIONS ===== */
+#notifications{
+    position:fixed;
+    top:20px;
+    right:20px;
+    z-index:10000;
+}
+.notification{
+    border:2px solid #ff0000;
+    padding:15px 25px;
+    margin-bottom:10px;
+    border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="menu-container">
+    <div id="header"><span id="logo-text">KOBRA MENU</span></div>
+    <div id="breadcrumb"></div>
+    <div id="categories"></div>
+    <div id="elements"></div>
+</div>
+
+<div id="notifications"></div>
+
+<div id="keyboardContainer">
+    <h2 id="keyboardTitle">Choose Menu Key</h2>
+    <input id="keyboardInput" readonly>
+</div>
+
+<script>
+/* ===== STATE ===== */
+let currentIndex = 0;
+let elements = [];
+let bindingMode = false;
+let bindTargetIndex = null;
+
+/* ===== UI HELPERS ===== */
+function updateSelection(){
+    elements.forEach((el,i)=>el.classList.toggle('selected',i===currentIndex));
+    const sel=document.querySelector('.element.selected');
+    if(sel) sel.scrollIntoView({block:'nearest'});
+}
+
+/* ===== MESSAGE HANDLER ===== */
+window.addEventListener('message',e=>{
+    const d=e.data;
+
+    if(d.action==='showUI'){
+        document.getElementById('menu-container').style.display=d.visible?'flex':'none';
+    }
+
+    if(d.action==='updateElements'){
+        const cont=document.getElementById('elements');
+        cont.innerHTML='';
+        d.elements.forEach((item,i)=>{
+            const el=document.createElement('div');
+            el.className='element';
+            let t=item.label||'';
+            if(item.checked!==undefined) t+=' '+(item.checked?'On':'Off');
+            if(item.value!==undefined) t+=' '+item.value;
+            el.textContent=t;
+            cont.appendChild(el);
+        });
+        elements=[...document.querySelectorAll('.element')];
+        currentIndex=d.index||0;
+        updateSelection();
+        document.getElementById('breadcrumb').textContent=(d.path||[]).join(' > ');
+    }
+
+    if(d.action==='updateKeyboard'){
+        document.getElementById('keyboardContainer').style.display=d.visible?'block':'none';
+    }
+});
+
+/* ===== KEY HANDLING ===== */
+document.addEventListener('keydown',e=>{
+    if(bindingMode){
+        if(['Escape','F9'].includes(e.key)) return;
+
+        bindingMode=false;
+        document.getElementById('keyboardContainer').style.display='none';
+
+        fetch(`https://${GetParentResourceName()}/setKeybind`,{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                index:bindTargetIndex,
+                key:e.key
+            })
+        });
+
+        bindTargetIndex=null;
+        return;
+    }
+
+    if(e.key==='F9'){
+        bindingMode=true;
+        bindTargetIndex=currentIndex;
+        document.getElementById('keyboardContainer').style.display='block';
+        document.getElementById('keyboardInput').value='Press any key';
+        return;
+    }
+
+    if(e.key==='ArrowUp'){
+        currentIndex=(currentIndex-1+elements.length)%elements.length;
+        updateSelection();
+    }
+    if(e.key==='ArrowDown'){
+        currentIndex=(currentIndex+1)%elements.length;
+        updateSelection();
+    }
+});
+</script>
+
+</body>
+</html>
