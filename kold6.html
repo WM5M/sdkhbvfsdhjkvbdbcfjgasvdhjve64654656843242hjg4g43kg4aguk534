@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KOBRA MENU</title>
+    <style>
+        /* ... (keep all your existing styles) ... */
+        .bind-hint {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 5px;
+            color: #ff6666;
+        }
+    </style>
+</head>
+<body>
+    <!-- ... (keep your existing HTML structure) ... -->
+    <script src="ui.js"></script>
+    <script>
+        // ... (keep existing variables and functions) ...
+
+        if (data.action === 'updateElements') {
+            // ... (existing code to build elements) ...
+
+            data.elements.forEach((item, i) => {
+                // ... (existing div creation) ...
+
+                // Add bind hint only to selected/hovered item
+                if (i === (data.index || 0)) {
+                    const hint = document.createElement('div');
+                    hint.className = 'bind-hint';
+                    hint.textContent = '[F9 to Bind Key]';
+                    div.appendChild(hint);
+                }
+
+                // ... (rest of existing code) ...
+            });
+
+            // ... (rest of updateElements) ...
+        }
+    </script>
+</body>
+</html>
