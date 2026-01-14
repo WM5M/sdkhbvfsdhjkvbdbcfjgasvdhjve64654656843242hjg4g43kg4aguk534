@@ -1,0 +1,99 @@
+if FreecamEnabled then
+    local hoveredOption = FreecamOptions[FreecamHoveredIndex]
+
+    -- Scroll Wheel - Cycle Freecam Options
+    if IsControlJustReleased(0, 14) then -- Wheel Down
+        FreecamHoveredIndex = (FreecamHoveredIndex % #FreecamOptions) + 1
+    end
+
+    if IsControlJustReleased(0, 15) then -- Wheel Up
+        FreecamHoveredIndex = (FreecamHoveredIndex - 2) % #FreecamOptions + 1
+    end
+
+    -- Q/E for sub-options (weapons or vehicles)
+    if hoveredOption == "Shoot Weapon" then
+        if IsDisabledControlJustPressed(0, 44) then -- Q
+            CurrentWeaponIndex = (CurrentWeaponIndex - 2) % #FreecamWeaponList + 1
+        end
+        if IsDisabledControlJustPressed(0, 38) then -- E
+            CurrentWeaponIndex = (CurrentWeaponIndex % #FreecamWeaponList) + 1
+        end
+    elseif hoveredOption == "Spawn Car" then
+        if IsDisabledControlJustPressed(0, 44) then -- Q
+            CurrentVehicleIndex = (CurrentVehicleIndex - 2) % #FreecamVehicleList + 1
+        end
+        if IsDisabledControlJustPressed(0, 38) then -- E
+            CurrentVehicleIndex = (CurrentVehicleIndex % #FreecamVehicleList) + 1
+        end
+    end
+
+    -- Execute action on Left Click (or whatever trigger you use)
+    if IsDisabledControlJustPressed(0, 24) then -- Left Mouse Button
+        local action = hoveredOption
+        if action == "Shoot Weapon" then
+            local weapon = FreecamWeaponList[CurrentWeaponIndex]
+            -- Your existing weapon shooting logic here...
+        -- Add other actions as needed
+        end
+    end
+end
+
+-- On-screen Freecam HUD (runs only when Freecam is enabled)
+CreateThread(function()
+    while true do
+        Wait(0)
+        if FreecamEnabled then
+            -- Background box
+            DrawRect(0.5, 0.85, 0.3, 0.25, 0, 0, 0, 200)
+
+            -- Title
+            DrawText2D(0.5, 0.73, "Freecam Mode", 0.6, {255, 0, 0, 255})
+
+            -- Current selected mode (big and highlighted)
+            local currentMode = FreecamOptions[FreecamHoveredIndex]
+            DrawText2D(0.5, 0.78, currentMode, 0.7, {255, 255, 255, 255})
+
+            -- Sub-option if applicable
+            local subText = ""
+            if currentMode == "Shoot Weapon" then
+                subText = "Weapon: " .. FreecamWeaponList[CurrentWeaponIndex]
+            elseif currentMode == "Spawn Car" then
+                subText = "Vehicle: " .. FreecamVehicleList[CurrentVehicleIndex]
+            end
+            if subText ~= "" then
+                DrawText2D(0.5, 0.83, subText, 0.5, {255, 100, 100, 255})
+            end
+
+            -- Full list of modes (small, with highlight on current)
+            local startY = 0.88
+            local lineHeight = 0.035
+            for i = 1, #FreecamOptions do
+                local mode = FreecamOptions[i]
+                local color = (i == FreecamHoveredIndex) and {255, 0, 0, 255} or {200, 200, 200, 255}
+                local scale = (i == FreecamHoveredIndex) and 0.45 or 0.4
+                DrawText2D(0.5, startY + (i-1) * lineHeight, mode, scale, color)
+            end
+
+            -- Instructions
+            DrawText2D(0.5, 0.96, "Mouse Wheel: Change Mode | Q/E: Change Weapon/Vehicle | LMB: Use", 0.4, {150, 150, 255, 255})
+        else
+            Wait(500) -- Reduce CPU when not in Freecam
+        end
+    end
+end)
+
+-- Helper functions (add these if you don't have them already)
+function DrawText2D(x, y, text, scale, color)
+    SetTextFont(4)
+    SetTextScale(0.0, scale)
+    SetTextColour(color[1], color[2], color[3], color[4] or 255)
+    SetTextCentre(true)
+    SetTextOutline()
+    BeginTextCommandDisplayText("STRING")
+    AddTextComponentSubstringPlayerName(text)
+    EndTextCommandDisplayText(x, y)
+end
+
+function DrawRect(x, y, width, height, r, g, b, a)
+    DrawRect(x, y, width, height, r, g, b, a)
+end
