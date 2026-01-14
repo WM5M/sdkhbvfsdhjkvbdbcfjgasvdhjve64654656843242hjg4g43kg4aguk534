@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>KOBRA MENU</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: transparent;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    color: white;
+    user-select: none;
+}
+
+/* ================= MENU ================= */
+#menu-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 520px;
+    height: 680px;
+    background: rgba(0,0,0,0.8);
+    border: 2px solid red;
+    border-radius: 10px;
+    box-shadow: 0 0 20px red;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#header {
+    height: 100px;
+    background: url('https://jaythaagamer.simdif.com/images/th/sd_6935ae44db1fd.png?no_cache=1765129304') center/cover no-repeat;
+}
+
+#breadcrumb {
+    padding: 10px;
+    background: rgba(0,0,0,.5);
+    text-align: center;
+}
+
+#elements {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ================= ELEMENT ================= */
+.element {
+    width: 90%;
+    padding: 15px;
+    background: rgba(20,20,20,.85);
+    border: 2px solid red;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.element.selected {
+    background: rgba(255,0,0,.35);
+    box-shadow: 0 0 25px rgba(255,0,0,.9);
+    transform: scale(1.05);
+}
+
+/* ================= SCROLLBAR ================= */
+#elements::-webkit-scrollbar {
+    width: 8px;
+}
+#elements::-webkit-scrollbar-thumb {
+    background: red;
+    border-radius: 4px;
+}
+
+/* ================= KEYBOARD ================= */
+#keyboardContainer {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.85);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+#keyboardBox {
+    width: 520px;
+    padding: 30px;
+    background: rgba(0,0,0,.95);
+    border: 3px solid red;
+    border-radius: 14px;
+    text-align: center;
+}
+
+#keyboardTitle {
+    font-size: 28px;
+    color: red;
+    margin-bottom: 20px;
+}
+
+#keyboardInput {
+    width: 100%;
+    padding: 16px;
+    font-size: 26px;
+    background: #111;
+    border: 2px solid red;
+    color: white;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div id="menu-container">
+    <div id="header"></div>
+    <div id="breadcrumb"></div>
+    <div id="elements"></div>
+</div>
+
+<div id="keyboardContainer">
+    <div id="keyboardBox">
+        <div id="keyboardTitle">Choose Menu Key</div>
+        <input id="keyboardInput" readonly>
+    </div>
+</div>
+
+<script src="ui.js"></script>
+
+<script>
+let currentIndex = 0;
+let elements = [];
+const elementsContainer = document.getElementById('elements');
+
+/* ================= SELECTION ================= */
+function updateSelection() {
+    elements.forEach((el, i) => {
+        el.classList.toggle('selected', i === currentIndex);
+        if (i === currentIndex) {
+            el.scrollIntoView({ block: 'nearest' });
+        }
+    });
+}
+
+/* ================= LUA MESSAGES ================= */
+window.addEventListener('message', event => {
+    const data = event.data;
+
+    if (data.action === 'showUI') {
+        document.getElementById('menu-container').style.display =
+            data.visible ? 'flex' : 'none';
+    }
+
+    if (data.action === 'updateElements') {
+        elementsContainer.innerHTML = '';
+
+        data.elements.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'element';
+
+            let text = item.label || '';
+            if (item.checked !== undefined) {
+                text += item.checked ? ' On' : ' Off';
+            } else if (item.value !== undefined) {
+                text += ' ' + Number(item.value).toFixed(2);
+            }
+
+            div.textContent = text;
+            elementsContainer.appendChild(div);
+        });
+
+        elements = Array.from(document.querySelectorAll('.element'));
+        currentIndex = data.index || 0;
+        updateSelection();
+    }
+
+    if (data.action === 'updateKeyboard') {
+        const kb = document.getElementById('keyboardContainer');
+        kb.style.display = data.visible ? 'flex' : 'none';
+        document.getElementById('keyboardTitle').textContent =
+            data.title || 'Choose Menu Key';
+        document.getElementById('keyboardInput').value =
+            data.value || '';
+    }
+});
+
+/* ================= ARROW KEYS (FIX) ================= */
+document.addEventListener('keydown', e => {
+    if (!elements.length) return;
+    if (document.getElementById('keyboardContainer').style.display === 'flex') return;
+
+    if (e.key === 'ArrowUp') {
+        currentIndex = (currentIndex - 1 + elements.length) % elements.length;
+        updateSelection();
+        e.preventDefault();
+    }
+
+    if (e.key === 'ArrowDown') {
+        currentIndex = (currentIndex + 1) % elements.length;
+        updateSelection();
+        e.preventDefault();
+    }
+});
+
+/* ================= MOUSE WHEEL SCROLL ================= */
+elementsContainer.addEventListener('wheel', e => {
+    elementsContainer.scrollTop += e.deltaY;
+});
+</script>
+
+</body>
+</html>
