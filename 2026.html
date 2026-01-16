@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kobra Menu</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            font-family: Arial, sans-serif;
+            color: #ff0000; /* Red text */
+            overflow: hidden;
+        }
+
+        #menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 400px; /* Perfect menu size - adjustable if needed */
+            height: auto;
+            max-height: 80vh;
+            background: #000000; /* Black background */
+            border: 2px solid #ff0000; /* Red border */
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        #banner {
+            width: 100%;
+            height: 150px; /* Full menu screen banner height */
+            background-image: url('https://jaythaagamer.simdif.com/images/public/sd_696292dfc3164.png?no_cache=1768071413');
+            background-size: cover;
+            background-position: center;
+            border-bottom: 2px solid #ff0000; /* Red separator */
+        }
+
+        #header {
+            text-align: center;
+            font-size: 18px;
+            color: #ffffff; /* White for contrast */
+            padding: 10px;
+            background: #ff0000; /* Red header bg */
+        }
+
+        #path {
+            padding: 10px;
+            font-size: 14px;
+            color: #ffffff;
+            text-align: center;
+            border-bottom: 1px solid #ff0000;
+        }
+
+        #categories {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background: #1a1a1a; /* Dark gray for categories */
+        }
+
+        .category {
+            padding: 8px 15px;
+            background: #ff0000;
+            color: #000000;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .category.selected {
+            background: #cc0000; /* Darker red for selected */
+        }
+
+        #elements {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .element {
+            padding: 12px;
+            border-bottom: 1px solid #ff0000;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #ffffff;
+        }
+
+        .element.selected {
+            background: #ff0000;
+            color: #000000;
+        }
+
+        .element.disabled {
+            color: #666666;
+            cursor: not-allowed;
+        }
+
+        #notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1001;
+        }
+
+        #notification.success { background: #00ff00; color: #000000; } /* Green for success */
+        #notification.error { background: #ff0000; color: #000000; } /* Red for error */
+        #notification.info { background: #0000ff; color: #ffffff; } /* Blue for info */
+
+        #keyboard {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            padding: 20px;
+            background: #000000;
+            border: 2px solid #ff0000;
+            border-radius: 8px;
+            text-align: center;
+            z-index: 1002;
+            display: none;
+        }
+
+        #keyboard-title {
+            color: #ff0000;
+            margin-bottom: 10px;
+        }
+
+        #keyboard-input {
+            width: 100%;
+            padding: 10px;
+            background: #1a1a1a;
+            color: #ff0000;
+            border: 1px solid #ff0000;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        #freecam {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border: 2px solid #ff0000;
+            border-radius: 8px;
+            color: #ffffff;
+            z-index: 1003;
+            display: none;
+        }
+
+        #freecam-options {
+            color: #ff0000;
+        }
+
+        #freecam-weapon, #freecam-vehicle {
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu">
+        <div id="banner"></div>
+        <div id="header"></div>
+        <div id="path"></div>
+        <div id="categories"></div>
+        <ul id="elements"></ul>
+    </div>
+
+    <div id="notification"></div>
+
+    <div id="keyboard">
+        <h2 id="keyboard-title"></h2>
+        <input id="keyboard-input" type="text" readonly>
+    </div>
+
+    <div id="freecam">
+        <p id="freecam-options">Scrollwheel Options: Default, Teleport, Shoot Weapon, Kick from Vehicle, Hijack Vehicle, Delete Vehicle</p>
+        <p>Weapon: <span id="freecam-weapon"></span></p>
+        <p>Vehicle: <span id="freecam-vehicle"></span></p>
+    </div>
+
+    <script>
+        // Hardcoded lists from Lua for Freecam display
+        const freecamOptions = ["Default", "Teleport", "Shoot Weapon", "Kick from Vehicle", "Hijack Vehicle", "Delete Vehicle"];
+        const freecamWeapons = ["WEAPON_APPISTOL", "WEAPON_PISTOL", "WEAPON_SMG", "WEAPON_ASSAULTRIFLE", "WEAPON_RPG", "WEAPON_PERMKILL", "WEAPON_AIRSTRIKE_ROCKET"];
+        const freecamVehicles = ["Adder", "Zentorno", "Comet", "Banshee", "Trash", "Dump"];
+
+        // Listen for messages from Lua
+        window.addEventListener('message', function(event) {
+            const data = event.data;
+
+            if (data.action === 'showUI') {
+                const menu = document.getElementById('menu');
+                menu.style.display = data.visible ? 'block' : 'none';
+                if (data.visible) {
+                    document.getElementById('header').innerText = data.header + ' - ' + data.username;
+                    // Apply theme if needed (already red-black)
+                    updatePath(data.path);
+                    updateCategories(data.categories, data.categoryIndex);
+                    updateElements(data.elements, data.index);
+                }
+            } else if (data.action === 'updateElements') {
+                updatePath(data.path);
+                updateCategories(data.categories, data.categoryIndex);
+                updateElements(data.elements, data.index);
+            } else if (data.action === 'keydown') {
+                if (data.index !== undefined) {
+                    // Update selected index visually
+                    const elements = document.querySelectorAll('.element');
+                    elements.forEach((el, i) => {
+                        el.classList.toggle('selected', i === data.index);
+                    });
+                } else if (data.key === 'Enter') {
+                    // Optional: Flash selected on enter
+                    const selected = document.querySelector('.element.selected');
+                    if (selected) {
+                        selected.style.background = '#cc0000';
+                        setTimeout(() => { selected.style.background = '#ff0000'; }, 200);
+                    }
+                }
+                // Ignore other keys since logic is in Lua
+            } else if (data.action === 'showNotification') {
+                const notif = document.getElementById('notification');
+                notif.innerHTML = `<h3>${data.title}</h3><p>${data.desc}</p>`;
+                notif.className = data.type; // success, error, info
+                notif.style.display = 'block';
+                setTimeout(() => { notif.style.display = 'none'; }, data.duration || 5000);
+            } else if (data.action === 'updateKeyboard') {
+                const kb = document.getElementById('keyboard');
+                kb.style.display = data.visible ? 'block' : 'none';
+                if (data.visible) {
+                    document.getElementById('keyboard-title').innerText = data.title;
+                    document.getElementById('keyboard-input').value = data.value;
+                }
+            } else if (data.action === 'displayFreecam') {
+                const fc = document.getElementById('freecam');
+                fc.style.display = data.visible ? 'block' : 'none';
+                if (data.visible) {
+                    document.getElementById('freecam-options').innerText = 'Scrollwheel Options: ' + freecamOptions.join(', ');
+                    document.getElementById('freecam-weapon').innerText = freecamWeapons[data.weaponIndex - 1] || 'Unknown';
+                    document.getElementById('freecam-vehicle').innerText = freecamVehicles[data.vehicleIndex - 1] || 'Unknown';
+                }
+            }
+        });
+
+        function updatePath(path) {
+            document.getElementById('path').innerText = path ? path.join(' > ') : '';
+        }
+
+        function updateCategories(categories, index) {
+            const catDiv = document.getElementById('categories');
+            catDiv.innerHTML = '';
+            if (categories && categories.length > 0) {
+                categories.forEach((cat, i) => {
+                    const span = document.createElement('span');
+                    span.className = 'category' + (i === index ? ' selected' : '');
+                    span.innerText = cat.label;
+                    catDiv.appendChild(span);
+                });
+            }
+        }
+
+        function updateElements(elements, index) {
+            const ul = document.getElementById('elements');
+            ul.innerHTML = '';
+            if (elements && elements.length > 0) {
+                elements.forEach((el, i) => {
+                    const li = document.createElement('li');
+                    li.className = 'element' + (i === index ? ' selected' : '') + (el.disabled ? ' disabled' : '');
+                    let text = el.label || '';
+
+                    if (el.type === 'divider') {
+                        text = '--- ' + text + ' ---';
+                    } else if (el.type === 'checkbox' || el.type === 'scrollable-checkbox' || el.type === 'slider-checkbox') {
+                        text = (el.checked ? '[X] ' : '[ ] ') + text;
+                    } else if (el.type === 'scrollable') {
+                        text += ': ' + (el.values && el.values[el.value - 1] ? el.values[el.value - 1] : 'N/A');
+                    } else if (el.type === 'slider') {
+                        text += ': ' + (el.value || 0);
+                    } // Add more types as needed from your Lua (e.g., button is just label)
+
+                    li.innerText = text;
+
+                    // Meta data as tooltip if present
+                    if (el.metaData && el.metaData.length > 0) {
+                        li.title = el.metaData.map(md => `${md.key}: ${md.value}`).join('\n');
+                    }
+
+                    ul.appendChild(li);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
