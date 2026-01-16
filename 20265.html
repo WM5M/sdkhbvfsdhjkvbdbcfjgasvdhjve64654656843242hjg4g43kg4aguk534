@@ -275,7 +275,7 @@
             if (data.action === 'showUI') {
                 document.getElementById('menu').style.display = data.visible ? 'block' : 'none';
                 if (data.visible) {
-                    document.getElementById('header').innerText = (data.header || '') + ' - ' + (data.username || 'User');
+                    document.getElementById('header').innerText = (data.header || '') + '  ' + (data.username || 'User');
                     updatePath(data.path);
                     updateCategories(data.categories, data.categoryIndex);
                     updateElements(data.elements, data.index);
