@@ -156,30 +156,31 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: transparent;
-            border: none;
-            box-shadow: none;
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255,0,0,0.5);
             z-index: 1002;
             display: none;
         }
 
-        #keyboard-title, #keyboard-input {
-            width: 250px;
-            padding: 10px;
-            background: #000000;
-            border: 2px solid #ff0000;
-            border-radius: 4px;
-            text-align: center;
+        #keyboard-title {
             color: #ff0000;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
-            margin: 5px 0;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            margin-bottom: 10px;
         }
 
         #keyboard-input {
+            width: 300px;
+            padding: 10px;
+            background: #111111;
             color: #ffffff;
-            min-height: 20px;
+            border: 1px solid #ff0000;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
         }
 
         #freecam {
@@ -243,7 +244,7 @@
 
     <div id="keyboard">
         <div id="keyboard-title"></div>
-        <div id="keyboard-input"></div>
+        <input type="text" id="keyboard-input">
     </div>
 
     <div id="freecam">
@@ -260,6 +261,10 @@
         const freecamVehicles = ["Adder", "Zentorno", "Comet", "Banshee", "Trash", "Dump"];
 
         let currentFreecamIndex = 0; // Track selected option (0 = Default)
+
+        function getParentResourceName() {
+            return window.GetParentResourceName ? window.GetParentResourceName() : 'kobra_menu'; // Replace 'kobra_menu' with your actual resource name if needed
+        }
 
         window.addEventListener('message', function(event) {
             const data = event.data;
@@ -301,7 +306,9 @@
                 kb.style.display = data.visible ? 'flex' : 'none';
                 if (data.visible) {
                     document.getElementById('keyboard-title').innerText = data.title;
-                    document.getElementById('keyboard-input').innerText = data.value || '';
+                    const input = document.getElementById('keyboard-input');
+                    input.value = data.value || '';
+                    input.focus();
                 }
             } 
             else if (data.action === 'displayFreecam') {
@@ -312,6 +319,31 @@
                     currentFreecamIndex = data.weaponIndex - 1 || 0; // assuming weaponIndex correlates to option index
                     updateFreecamDisplay();
                 }
+            }
+        });
+
+        // Add event listeners for keyboard input
+        const keyboardInput = document.getElementById('keyboard-input');
+        keyboardInput.addEventListener('input', function() {
+            fetch(`https://${getParentResourceName()}/update_keyboard`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                },
+                body: JSON.stringify({ value: this.value })
+            });
+        });
+
+        keyboardInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                fetch(`https://${getParentResourceName()}/submit_keyboard`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: JSON.stringify({ value: this.value })
+                });
+                // Optionally hide keyboard or clear input
             }
         });
 
