@@ -254,16 +254,8 @@
     </div>
 
     <script>
-        // Hardcoded from your Lua
-        const freecamOptions = [
-            "Default", 
-            "Teleport", 
-            "Shoot Weapon", 
-            "Kick from Vehicle", 
-            "Hijack Vehicle", 
-            "Delete Vehicle"
-        ];
-
+        // Hardcoded lists from Lua for Freecam display
+        const freecamOptions = ["Default", "Teleport", "Shoot Weapon", "Kick from Vehicle", "Hijack Vehicle", "Delete Vehicle"];
         const freecamWeapons = ["WEAPON_APPISTOL", "WEAPON_PISTOL", "WEAPON_SMG", "WEAPON_ASSAULTRIFLE", "WEAPON_RPG", "WEAPON_PERMKILL", "WEAPON_AIRSTRIKE_ROCKET"];
         const freecamVehicles = ["Adder", "Zentorno", "Comet", "Banshee", "Trash", "Dump"];
 
@@ -290,6 +282,11 @@
                 if (data.index !== undefined) {
                     const elements = document.querySelectorAll('.element');
                     elements.forEach((el, i) => el.classList.toggle('selected', i === data.index));
+                    // Ensure the selected element is scrolled into view
+                    const selected = document.querySelector('.element.selected');
+                    if (selected) {
+                        selected.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
                 }
             } 
             else if (data.action === 'showNotification') {
@@ -382,6 +379,12 @@
 
                 ul.appendChild(li);
             });
+
+            // After update, scroll to ensure selected is visible
+            const selected = ul.querySelector('.selected');
+            if (selected) {
+                selected.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
         function updateFreecamDisplay() {
