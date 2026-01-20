@@ -1,0 +1,35 @@
+function KeyboardInput(title, initialValue, callback, mode)
+    -- Show the keyboard UI via NUI message
+    SendNUIMessage({
+        action = 'updateKeyboard',
+        visible = true,
+        title = title,
+        value = initialValue or ""
+    })
+
+    -- Set NUI focus to enable typing
+    SetNuiFocus(true, true)
+
+    -- Register NUI callback for input updates (optional, if you want real-time updates)
+    RegisterNUICallback('update_keyboard', function(data, cb)
+        -- You can handle real-time updates here if needed
+        cb('ok')
+    end)
+
+    -- Register NUI callback for submit (Enter key)
+    RegisterNUICallback('submit_keyboard', function(data, cb)
+        -- Hide keyboard
+        SendNUIMessage({
+            action = 'updateKeyboard',
+            visible = false
+        })
+
+        -- Release NUI focus
+        SetNuiFocus(false, false)
+
+        -- Call the provided callback with the input value
+        callback(data.value)
+
+        cb('ok')
+    end)
+end
