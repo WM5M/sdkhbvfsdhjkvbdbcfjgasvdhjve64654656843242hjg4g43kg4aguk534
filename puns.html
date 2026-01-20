@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kobra Menu</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #ff0000;
+            overflow: hidden;
+        }
+
+        #menu {
+            position: absolute;
+            top: 40px;          /* ~1-2 inches from top (depending on DPI) */
+            left: 60px;         /* ~1-2 inches from left edge */
+            width: 440px;       /* ~10% wider than previous 400px */
+            height: auto;
+            max-height: 88vh;   /* More vertical space - increased height allowance */
+            background-image: url('https://pbs.twimg.com/media/DiZfGNmWkAAlDt6.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.6);
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        /* Custom scrollbar */
+        #menu::-webkit-scrollbar {
+            width: 8px;
+        }
+        #menu::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.6);
+        }
+        #menu::-webkit-scrollbar-thumb {
+            background: #ff0000;
+            border-radius: 4px;
+        }
+        #menu::-webkit-scrollbar-thumb:hover {
+            background: #cc0000;
+        }
+
+        #header {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff;
+            padding: 14px 10px;
+            background: rgba(255, 0, 0, 0.5); /* Lowered opacity for better background visibility */
+            border-bottom: 1px solid #ff0000;
+        }
+
+        #path {
+            padding: 10px 14px;
+            font-size: 14px;
+            color: #ffffff;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3); /* Lowered opacity */
+            border-bottom: 1px solid #ff0000;
+        }
+
+        #categories {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(26, 26, 26, 0.4); /* Lowered opacity */
+        }
+
+        .category {
+            padding: 9px 18px;
+            background: #ff0000;
+            color: #000000;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .category.selected {
+            background: #cc0000;
+            transform: scale(1.05);
+        }
+
+        #elements {
+            list-style: none;
+            padding: 8px 0;
+            margin: 0;
+        }
+
+        .element {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.3); /* Lowered opacity for better background visibility */
+            font-size: 15px;
+        }
+
+        .element.selected {
+            background: rgba(255, 0, 0, 0.6); /* Slightly lowered opacity */
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .element.disabled {
+            color: #777777;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .element-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .element-value {
+            color: #ffcc00;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        #notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            border-radius: 10px;
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            display: none;
+            z-index: 1001;
+            font-weight: bold;
+        }
+
+        #notification.success { background: #00cc00; }
+        #notification.error   { background: #ff0000; }
+        #notification.info    { background: #0066ff; }
+
+        #keyboard {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255,0,0,0.5);
+            z-index: 1002;
+            display: none;
+        }
+
+        #keyboard-title {
+            color: #ff0000;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #keyboard-input {
+            width: 300px;
+            padding: 10px;
+            background: #111111;
+            color: #ffffff;
+            border: 1px solid #ff0000;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        #freecam {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 14px 18px;
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            color: #ffffff;
+            z-index: 1003;
+            display: none;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+        }
+
+        #freecam-title {
+            color: #ff0000;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        #freecam-options {
+            margin: 8px 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .freecam-option {
+            transition: color 0.2s;
+        }
+
+        .freecam-option.selected {
+            color: #ffcc00;
+            font-weight: bold;
+        }
+
+        #freecam-status, #freecam-speed {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        #freecam-speed {
+            color: #ffcc00;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu">
+        <div id="header"></div>
+        <div id="path"></div>
+        <div id="categories"></div>
+        <ul id="elements"></ul>
+    </div>
+
+    <div id="notification"></div>
+
+    <div id="keyboard">
+        <div id="keyboard-title"></div>
+        <input type="text" id="keyboard-input">
+    </div>
+
+    <div id="freecam">
+        <div id="freecam-title">Freecam Controls</div>
+        <div id="freecam-options"></div>
+        <div id="freecam-status">Freecam: <span id="freecam-state">Off</span></div>
+        <div id="freecam-speed">Speed: <span id="freecam-multiplier">x1.00</span> (Hold Shift → x2.00)</div>
+    </div>
+
+    <script>
+        // Hardcoded lists from Lua for Freecam display
+        const freecamOptions = ["Default", "Teleport", "Shoot Weapon", "Kick from Vehicle", "Hijack Vehicle", "Delete Vehicle"];
+        const freecamWeapons = ["WEAPON_APPISTOL", "WEAPON_PISTOL", "WEAPON_SMG", "WEAPON_ASSAULTRIFLE", "WEAPON_RPG", "WEAPON_PERMKILL", "WEAPON_AIRSTRIKE_ROCKET"];
+        const freecamVehicles = ["Adder", "Zentorno", "Comet", "Banshee", "Trash", "Dump"];
+
+        let currentFreecamIndex = 0; // Track selected option (0 = Default)
+
+        function getParentResourceName() {
+            return window.GetParentResourceName ? window.GetParentResourceName() : 'kobra_menu'; // Replace 'kobra_menu' with your actual resource name if needed
+        }
+
+        window.addEventListener('message', function(event) {
+            const data = event.data;
+
+            if (data.action === 'showUI') {
+                document.getElementById('menu').style.display = data.visible ? 'block' : 'none';
+                if (data.visible) {
+                    document.getElementById('header').innerText = (data.header || '') + '  ' + (data.username || 'User');
+                    updatePath(data.path);
+                    updateCategories(data.categories, data.categoryIndex);
+                    updateElements(data.elements, data.index);
+                }
+            } 
+            else if (data.action === 'updateElements') {
+                updatePath(data.path);
+                updateCategories(data.categories, data.categoryIndex);
+                updateElements(data.elements, data.index);
+            } 
+            else if (data.action === 'keydown') {
+                if (data.index !== undefined) {
+                    const elements = document.querySelectorAll('.element');
+                    elements.forEach((el, i) => el.classList.toggle('selected', i === data.index));
+                    // Ensure the selected element is scrolled into view
+                    const selected = document.querySelector('.element.selected');
+                    if (selected) {
+                        selected.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }
+            } 
+            else if (data.action === 'showNotification') {
+                const notif = document.getElementById('notification');
+                notif.innerHTML = `<div>${data.title}</div><div>${data.desc}</div>`;
+                notif.className = data.type || 'info';
+                notif.style.display = 'block';
+                setTimeout(() => notif.style.display = 'none', data.duration || 5000);
+            } 
+            else if (data.action === 'updateKeyboard') {
+                const kb = document.getElementById('keyboard');
+                kb.style.display = data.visible ? 'flex' : 'none';
+                if (data.visible) {
+                    document.getElementById('keyboard-title').innerText = data.title;
+                    const input = document.getElementById('keyboard-input');
+                    input.value = data.value || '';
+                    input.focus();
+                }
+            } 
+            else if (data.action === 'displayFreecam') {
+                const fc = document.getElementById('freecam');
+                fc.style.display = data.visible ? 'block' : 'none';
+
+                if (data.visible) {
+                    currentFreecamIndex = data.weaponIndex - 1 || 0; // assuming weaponIndex correlates to option index
+                    updateFreecamDisplay();
+                }
+            }
+        });
+
+        // Add event listeners for keyboard input
+        const keyboardInput = document.getElementById('keyboard-input');
+        keyboardInput.addEventListener('input', function() {
+            fetch(`https://${getParentResourceName()}/update_keyboard`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                },
+                body: JSON.stringify({ value: this.value })
+            });
+        });
+
+        keyboardInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                fetch(`https://${getParentResourceName()}/submit_keyboard`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: JSON.stringify({ value: this.value })
+                });
+                // Optionally hide keyboard or clear input
+            }
+        });
+
+        function updatePath(path) {
+            document.getElementById('path').innerText = path ? path.join(' → ') : '';
+        }
+
+        function updateCategories(categories, index) {
+            const catDiv = document.getElementById('categories');
+            catDiv.innerHTML = '';
+            if (categories && categories.length > 0) {
+                categories.forEach((cat, i) => {
+                    const span = document.createElement('span');
+                    span.className = 'category' + (i === index ? ' selected' : '');
+                    span.innerText = cat.label || 'Category';
+                    catDiv.appendChild(span);
+                });
+            }
+        }
+
+        function updateElements(elements, selectedIndex = 0) {
+            const ul = document.getElementById('elements');
+            ul.innerHTML = '';
+
+            elements.forEach((el, i) => {
+                const li = document.createElement('li');
+                li.className = 'element' + (i === selectedIndex ? ' selected' : '') + (el.disabled ? ' disabled' : '');
+
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'element-label';
+
+                let mainText = el.label || '';
+
+                // Cleaner display logic
+                if (el.type === 'divider') {
+                    mainText = '──────── ' + mainText + ' ────────';
+                } else if (el.type.includes('checkbox')) {
+                    mainText = el.checked ? 'Enabled • ' + mainText : 'Disabled • ' + mainText;
+                } else if (el.type === 'scrollable' || el.type === 'scrollable-checkbox') {
+                    const val = el.values?.[el.value - 1] || '—';
+                    mainText += ' • ' + val;
+                } else if (el.type === 'slider' || el.type === 'slider-checkbox') {
+                    const val = el.value ?? 0;
+                    mainText += ' • ' + val;
+                    if (el.min !== undefined && el.max !== undefined) {
+                        mainText += ` (${el.min} – ${el.max})`;
+                    }
+                }
+
+                labelDiv.innerText = mainText;
+
+                // Value on right if applicable
+                if (el.type === 'slider' || el.type === 'slider-checkbox') {
+                    const valSpan = document.createElement('span');
+                    valSpan.className = 'element-value';
+                    valSpan.innerText = el.value ?? '0';
+                    labelDiv.appendChild(valSpan);
+                }
+
+                li.appendChild(labelDiv);
+
+                if (el.metaData && el.metaData.length) {
+                    li.title = el.metaData.map(m => `${m.key}: ${m.value}`).join('\n');
+                }
+
+                ul.appendChild(li);
+            });
+
+            // After update, scroll to ensure selected is visible
+            const selected = ul.querySelector('.selected');
+            if (selected) {
+                selected.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function updateFreecamDisplay() {
+            const optionsDiv = document.getElementById('freecam-options');
+            optionsDiv.innerHTML = '';
+
+            freecamOptions.forEach((opt, i) => {
+                const span = document.createElement('span');
+                span.className = 'freecam-option' + (i === currentFreecamIndex ? ' selected' : '');
+                span.innerText = opt;
+                optionsDiv.appendChild(span);
+                if (i < freecamOptions.length - 1) {
+                    optionsDiv.appendChild(document.createTextNode(' • '));
+                }
+            });
+
+            // You can update state / speed from Lua if sent, for now assuming defaults
+            document.getElementById('freecam-state').innerText = currentFreecamIndex === 0 ? 'Off' : 'On';
+            document.getElementById('freecam-multiplier').innerText = 'x1.00'; // can be updated dynamically if Lua sends it
+        }
+    </script>
+</body>
+</html>
