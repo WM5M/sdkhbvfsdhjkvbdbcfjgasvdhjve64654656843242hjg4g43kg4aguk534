@@ -13,177 +13,170 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
+            background-image: url('https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80&w=2000'); /* ← REPLACE THIS WITH YOUR CUSTOM BACKGROUND IMAGE */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
+
         .menu-container {
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, rgba(30, 30, 30, 0.9), rgba(50, 50, 50, 0.9));
-            padding: 0 25px 25px; /* Adjusted padding to account for banner */
+            background: rgba(20, 20, 20, 0.88); /* Dark semi-transparent so background shows through */
             border-radius: 15px;
             width: 850px;
             max-height: 85vh;
             overflow-y: auto;
             overflow-x: hidden;
-            box-shadow: 0 0 20px rgba(155, 0, 255, 0.5), 0 0 40px rgba(255, 105, 180, 0.3);
-            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(155, 0, 255, 0.6), 0 0 60px rgba(255, 105, 180, 0.4);
             display: flex;
             flex-direction: column;
         }
-        .menu-container:hover {
-            box-shadow: 0 0 30px rgba(155, 0, 255, 0.7), 0 0 50px rgba(255, 105, 180, 0.5);
-        }
-        .menu-container::-webkit-scrollbar {
-            width: 10px;
-        }
-        .menu-container::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 5px;
-        }
-        .menu-container::-webkit-scrollbar-thumb {
-            background: linear-gradient(#9b00ff, #ff69b4);
-            border-radius: 5px;
-        }
+
         #banner {
-            height: 120px; /* Banner strip height */
-            background-image: url('https://pbs.twimg.com/media/DiZfGNmWkAAlDt6.jpg'); /* Custom background image */
-            background-size: cover;
-            background-position: center;
+            height: 140px;
+            background: linear-gradient(135deg, rgba(155, 0, 255, 0.4), rgba(255, 105, 180, 0.4));
             border-top-left-radius: 15px;
             border-top-right-radius: 15px;
-            border-bottom: 2px solid #ff0000;
             position: relative;
             flex-shrink: 0;
         }
+
         #banner-title {
             position: absolute;
-            top: 20px;
+            top: 30px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 32px;
-            color: #ff0000;
-            text-shadow: 0 0 12px #ff0000, 0 0 24px #ff0000;
+            font-size: 38px;
             font-weight: bold;
+            color: #ff69b4;
+            text-shadow: 0 0 15px #ff69b4, 0 0 30px #9b00ff;
+            letter-spacing: 2px;
         }
+
         #banner-subtitle {
             position: absolute;
-            bottom: 10px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 18px;
+            font-size: 20px;
             color: #ffffff;
-            text-shadow: 0 0 8px #ff0000;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
         }
+
         .tab-bar {
             display: flex;
             justify-content: space-around;
-            margin-bottom: 20px;
+            margin: 20px 25px;
             background: rgba(0, 0, 0, 0.5);
             border-radius: 10px;
-            padding: 5px;
+            padding: 8px;
             flex-shrink: 0;
         }
+
         .tab {
-            padding: 10px 20px;
+            padding: 12px 28px;
             border-radius: 8px;
             transition: all 0.3s ease;
             cursor: default;
             font-weight: bold;
+            font-size: 16px;
         }
+
         .tab.active {
             background: linear-gradient(135deg, #9b00ff, #ff69b4);
-            color: #ffffff;
-            transform: scale(1.05);
+            color: white;
+            transform: scale(1.08);
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.7);
         }
-        .tab:hover {
-            background: rgba(155, 0, 255, 0.4);
+
+        .tab:hover:not(.active) {
+            background: rgba(155, 0, 255, 0.3);
         }
-        .header {
-            text-align: center;
-            font-size: 26px;
-            margin-bottom: 20px;
-            color: #ff69b4;
-            text-shadow: 0 0 5px rgba(255, 105, 180, 0.7);
-            letter-spacing: 1px;
-            flex-shrink: 0;
-        }
+
         .content {
-            overflow-y: auto;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
+            padding: 0 25px 25px;
             flex-grow: 1;
+            overflow-y: auto;
             min-height: 0;
         }
+
         .content::-webkit-scrollbar {
             width: 8px;
         }
+
         .content::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.5);
             border-radius: 4px;
         }
+
         .content::-webkit-scrollbar-thumb {
             background: linear-gradient(#9b00ff, #ff69b4);
             border-radius: 4px;
         }
+
         .grid {
             display: grid;
-            gap: 15px;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         }
+
         .item {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 18px;
+            background: rgba(40, 40, 40, 0.7);
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 17px;
             text-align: center;
-            transition: all 0.2s ease;
-            cursor: default;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.25s ease;
+            border: 1px solid rgba(155, 0, 255, 0.3);
         }
+
         .item.selected {
-            background: linear-gradient(135deg, #9b00ff, #ff69b4);
-            transform: scale(1.03);
-            box-shadow: 0 0 15px rgba(255, 105, 180, 0.7);
+            background: linear-gradient(135deg, rgba(155, 0, 255, 0.35), rgba(255, 105, 180, 0.35));
+            border-color: #ff69b4;
+            box-shadow: 0 0 25px rgba(255, 105, 180, 0.6);
+            transform: translateY(-4px);
         }
-        .item:hover {
-            background: rgba(155, 0, 255, 0.3);
-        }
+
         .input-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 12px 16px;
         }
+
         .input-label {
             font-weight: bold;
         }
+
         .input-value {
             color: #ff69b4;
             font-family: monospace;
-        }
-        .info-text {
-            text-align: center;
-            font-style: italic;
-            color: #cccccc;
-            margin-top: 20px;
-        }
-        .state {
-            color: #00ff00;
             font-weight: bold;
         }
-        .state.off {
-            color: #ff0000;
+
+        .state {
+            font-weight: bold;
         }
+
+        .state.on { color: #00ff88; }
+        .state.off { color: #ff4444; }
     </style>
 </head>
 <body>
-    <div class="menu-container" id="menu-container">
+    <div class="menu-container" id="menu">
         <div id="banner">
-            <div id="banner-title">KOBRA MENU</div>
+            <div id="banner-title">KATANA</div>
             <div id="banner-subtitle">JayMods</div>
         </div>
+
+        <div class="tab-bar" id="tab-bar"></div>
+
+        <div class="content" id="content"></div>
     </div>
+
     <script>
         let state = {
             tabs: [],
@@ -199,28 +192,16 @@
                 state = { ...state, ...data.state };
                 renderMenu();
             } else if (data.type === 'toggleMenu') {
-                document.getElementById('menu-container').style.display = data.visible ? 'flex' : 'none';
+                document.getElementById('menu').style.display = data.visible ? 'flex' : 'none';
             }
         });
 
         function renderMenu() {
-            const menu = document.getElementById('menu-container');
-            menu.innerHTML = ''; // Clear existing content
+            const menu = document.getElementById('menu');
+            const tabBar = document.getElementById('tab-bar');
+            const contentArea = document.getElementById('content');
 
-            const banner = document.createElement('div');
-            banner.id = 'banner';
-            const bannerTitle = document.createElement('div');
-            bannerTitle.id = 'banner-title';
-            bannerTitle.textContent = 'KOBRA MENU';
-            const bannerSubtitle = document.createElement('div');
-            bannerSubtitle.id = 'banner-subtitle';
-            bannerSubtitle.textContent = 'JayMods';
-            banner.appendChild(bannerTitle);
-            banner.appendChild(bannerSubtitle);
-            menu.appendChild(banner);
-
-            const tabBar = document.createElement('div');
-            tabBar.classList.add('tab-bar');
+            tabBar.innerHTML = '';
             state.tabs.forEach((tab, idx) => {
                 const tabEl = document.createElement('div');
                 tabEl.classList.add('tab');
@@ -228,29 +209,24 @@
                 tabEl.textContent = tab.title;
                 tabBar.appendChild(tabEl);
             });
-            menu.appendChild(tabBar);
 
-            const header = document.createElement('div');
-            header.classList.add('header');
-            header.textContent = state.tabs[state.activeTab].header || '';
-            menu.appendChild(header);
+            contentArea.innerHTML = '';
 
             if (!state.isContentPanelOpen) {
                 const info = document.createElement('div');
-                info.classList.add('info-text');
+                info.style.textAlign = 'center';
+                info.style.padding = '40px';
+                info.style.fontStyle = 'italic';
+                info.style.color = '#cccccc';
                 info.textContent = 'Press Enter to open tab content';
-                menu.appendChild(info);
+                contentArea.appendChild(info);
                 return;
             }
-
-            const content = document.createElement('div');
-            content.classList.add('content');
 
             const currentTab = state.tabs[state.activeTab];
             let container = document.createElement('div');
             if (currentTab.type === 'grid') {
                 container.classList.add('grid');
-                container.style.gridTemplateColumns = `repeat(${currentTab.cols || 2}, 1fr)`;
             }
 
             currentTab.items.forEach((item, idx) => {
@@ -268,9 +244,7 @@
                     const value = document.createElement('span');
                     value.classList.add('input-value');
                     let valText = item.value || item.placeholder || '';
-                    if (state.isTyping && idx === state.selection.index) {
-                        valText += '|';
-                    }
+                    if (state.isTyping && idx === state.selection.index) valText += '|';
                     value.textContent = valText;
                     itemEl.appendChild(value);
                 } else {
@@ -279,8 +253,9 @@
                         const stateSpan = document.createElement('span');
                         stateSpan.classList.add('state');
                         if (item.state.toLowerCase() === 'off') stateSpan.classList.add('off');
+                        if (item.state.toLowerCase() === 'on') stateSpan.classList.add('on');
                         stateSpan.textContent = ` (${item.state})`;
-                        itemEl.appendChild(document.createTextNode(text));
+                        itemEl.textContent = text;
                         itemEl.appendChild(stateSpan);
                     } else {
                         itemEl.textContent = text;
@@ -290,8 +265,7 @@
                 container.appendChild(itemEl);
             });
 
-            content.appendChild(container);
-            menu.appendChild(content);
+            contentArea.appendChild(container);
         }
     </script>
 </body>
