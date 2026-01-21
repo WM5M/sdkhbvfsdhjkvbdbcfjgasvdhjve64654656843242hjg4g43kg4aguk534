@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katana</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            font-family: 'Arial Black', Arial, sans-serif;
+            color: #ff69b4;
+            overflow: hidden;
+        }
+
+        #menu {
+            position: absolute;
+            top: 60px;
+            left: 80px;
+            width: 460px;
+            max-height: 80vh;
+            background: rgba(10, 5, 25, 0.92);
+            border: 3px solid #9b00ff;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(155, 0, 255, 0.7);
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        #banner {
+            height: 100px;
+            background: linear-gradient(135deg, #1a0033, #4b0082);
+            border-top-left-radius: 7px;
+            border-top-right-radius: 7px;
+            position: relative;
+        }
+
+        #banner-title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 34px;
+            font-weight: bold;
+            color: #ff69b4;
+            text-shadow: 0 0 16px #ff69b4, 0 0 32px #9b00ff;
+        }
+
+        #banner-subtitle {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            color: #d0b0ff;
+            text-shadow: 0 0 8px #9b00ff;
+        }
+
+        #menu::-webkit-scrollbar {
+            width: 9px;
+        }
+        #menu::-webkit-scrollbar-track {
+            background: #0f001a;
+        }
+        #menu::-webkit-scrollbar-thumb {
+            background: linear-gradient(#9b00ff, #ff69b4);
+            border-radius: 4px;
+        }
+
+        #path {
+            text-align: center;
+            font-size: 14px;
+            color: #cc99ff;
+            padding: 8px;
+            background: rgba(30, 0, 60, 0.6);
+            border-bottom: 1px solid #4b0082;
+        }
+
+        #categories {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 10px;
+            background: rgba(20, 10, 40, 0.7);
+            border-bottom: 2px solid #9b00ff;
+        }
+
+        .category {
+            padding: 8px 18px;
+            background: #220044;
+            color: #cc99ff;
+            border: 2px solid #4b0082;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .category.active {
+            background: linear-gradient(135deg, #9b00ff, #ff69b4);
+            color: white;
+            box-shadow: 0 0 16px #ff69b4;
+        }
+
+        #elements {
+            list-style: none;
+            padding: 8px 0;
+            margin: 0;
+        }
+
+        .element {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid #2a004f;
+            color: #e0d0ff;
+            font-size: 15px;
+            background: rgba(25, 15, 45, 0.5);
+            transition: 0.15s;
+        }
+
+        .element.selected {
+            background: rgba(155, 0, 255, 0.3);
+            border-color: #ff69b4;
+            color: #ffffcc;
+            font-weight: bold;
+        }
+
+        .element-value {
+            min-width: 80px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .element-value.off { color: #ff7777; }
+        .element-value.on  { color: #77ffaa; }
+    </style>
+</head>
+<body>
+    <div id="menu">
+        <div id="banner">
+            <div id="banner-title">KATANA</div>
+            <div id="banner-subtitle">JayMods</div>
+        </div>
+        <div id="path"></div>
+        <div id="categories"></div>
+        <ul id="elements"></ul>
+    </div>
+
+    <script>
+        let path = [];
+        let cats = [];
+        let activeCat = 0;
+        let items = [];
+        let selIdx = 0;
+
+        window.addEventListener('message', (e) => {
+            const d = e.data;
+            if (d.action === 'showUI') {
+                document.getElementById('menu').style.display = d.visible ? 'block' : 'none';
+                if (d.visible) {
+                    path = d.path || [];
+                    cats = d.categories || [];
+                    activeCat = d.categoryIndex || 0;
+                    items = d.elements || [];
+                    selIdx = d.index || 0;
+                    render();
+                }
+            }
+            else if (d.action === 'updateElements') {
+                path = d.path || path;
+                cats = d.categories || cats;
+                activeCat = d.categoryIndex || activeCat;
+                items = d.elements || items;
+                selIdx = d.index || selIdx;
+                render();
+            }
+            else if (d.action === 'keydown') {
+                if (d.index !== undefined) {
+                    selIdx = d.index;
+                    renderItems();
+                }
+            }
+        });
+
+        function render() {
+            document.getElementById('path').textContent = path.join(' > ');
+            renderCats();
+            renderItems();
+        }
+
+        function renderCats() {
+            const c = document.getElementById('categories');
+            c.innerHTML = '';
+            cats.forEach((cat, i) => {
+                const div = document.createElement('div');
+                div.className = 'category' + (i === activeCat ? ' active' : '');
+                div.textContent = cat.label || cat;
+                c.appendChild(div);
+            });
+        }
+
+        function renderItems() {
+            const ul = document.getElementById('elements');
+            ul.innerHTML = '';
+            items.forEach((it, i) => {
+                const li = document.createElement('li');
+                li.className = 'element' + (i === selIdx ? ' selected' : '');
+
+                const lbl = document.createElement('span');
+                lbl.textContent = it.label || '';
+
+                const val = document.createElement('span');
+                val.className = 'element-value';
+                let v = it.value ?? it.state ?? '';
+                if (v === true || v?.toLowerCase?.() === 'on') {
+                    v = 'ON';
+                    val.classList.add('on');
+                } else if (v === false || v?.toLowerCase?.() === 'off') {
+                    v = 'OFF';
+                    val.classList.add('off');
+                }
+                val.textContent = v;
+
+                li.appendChild(lbl);
+                li.appendChild(val);
+                ul.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
