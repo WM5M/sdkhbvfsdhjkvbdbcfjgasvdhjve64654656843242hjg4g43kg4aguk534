@@ -6,28 +6,23 @@
     <title>Katana</title>
     <style>
         html, body {
-            background: transparent !important; /* Critical: Forces CEF/DUI to not render black fill */
+            background: transparent !important;
             margin: 0;
             padding: 0;
             overflow: hidden;
-            height: 100%;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #ffffff;
-            background: linear-gradient(rgba(30, 30, 30, 0.4), rgba(50, 50, 50, 0.3)),
-                        url('https://m.media-amazon.com/images/I/61A53DcIphL._AC_UF894,1000_QL80_.jpg') no-repeat center center fixed;
-            background-size: contain; /* Centers and fits full image behind menu without stretch */
             user-select: none;
         }
-
         .menu-container {
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, rgba(30, 30, 30, 0.75), rgba(50, 50, 50, 0.75)); /* Slightly more transparent */
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.5), rgba(50, 50, 50, 0.5)),
+                        url('https://m.media-amazon.com/images/I/61A53DcIphL._AC_UF894,1000_QL80_.jpg') no-repeat center center / cover;
             padding: 25px;
             border-radius: 15px;
             width: 850px;
@@ -57,7 +52,7 @@
             display: flex;
             justify-content: space-around;
             margin-bottom: 20px;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 10px;
             padding: 5px;
             flex-shrink: 0;
@@ -89,7 +84,7 @@
         .content {
             overflow-y: auto;
             padding: 10px;
-            background: rgba(0, 0, 0, 0.25); /* Lighter to let bg show more */
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 10px;
             flex-grow: 1;
             min-height: 0;
@@ -108,7 +103,7 @@
         .item {
             padding: 12px;
             margin: 8px 0;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
             border-radius: 8px;
             display: flex;
             align-items: center;
